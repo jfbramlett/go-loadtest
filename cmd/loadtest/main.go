@@ -22,4 +22,6 @@ type functionWrapper struct {
 
 func (g *functionWrapper) Run() (interface{}, error) {
     fmt.Println("Blah blah blah")
+
+    return nil, nil
 }

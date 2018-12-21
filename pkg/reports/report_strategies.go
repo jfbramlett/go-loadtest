@@ -2,11 +2,20 @@ package reports
 
 import (
 	"fmt"
-	"github.com/jfbramlett/go-loadtest/pkg/loadtest"
 )
 
+type RunTimes struct {
+	Times 			[]int64
+	Errors			[]int64
+}
+
+func NewRunTimes() RunTimes {
+	return RunTimes{Times: make([]int64, 0), Errors: make([]int64, 0)}
+}
+
+
 type ReportStrategy interface {
-	Report(runner loadtest.LoadRunner, results []loadtest.RunTimes)
+	Report(concurrentRequests int, testDurationSec int64, results []RunTimes)
 }
 
 func NewConsoleReportStrategy(minTimeThreshold, maxTimeThreshold int64) ReportStrategy {
@@ -18,7 +27,7 @@ type consoleReportStrategy struct {
 	MaxTimeThreshold			int64
 }
 
-func (c *consoleReportStrategy) Report(runner loadtest.LoadRunner, results []loadtest.RunTimes) {
+func (c *consoleReportStrategy) Report(concurrentRequests int, testDurationSec int64, results []RunTimes) {
 	var totalRequests int64
 	var totalTime int64
 	var maxTime int64
@@ -65,7 +74,7 @@ Num Errors %d
 Num Below %d ms %d (%.2f %%)
 Num Between %d ms and %d ms %d (%.2f %%)
 Num Above %d ms %d (%.2f %%)`,
-		runner.ConcurrentRequests, runner.TestDurationSec, totalTime, totalRequests, avgRequestTime, maxTime, minTime, errors,
+		concurrentRequests, testDurationSec, totalTime, totalRequests, avgRequestTime, maxTime, minTime, errors,
 		c.MinTimeThreshold, totalLessThanMin, lessThanPercent,
 		c.MinTimeThreshold, c.MaxTimeThreshold, totalInMiddle, middlePercent,
 		c.MinTimeThreshold, totalAboveThreshold, thresholdPercent)

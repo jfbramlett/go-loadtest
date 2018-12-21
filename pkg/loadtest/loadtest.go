@@ -8,17 +8,6 @@ import (
 	"time"
 )
 
-
-type RunTimes struct {
-	Times 			[]int64
-	Errors			[]int64
-}
-
-func NewRunTimes() RunTimes {
-	return RunTimes{Times: make([]int64, 0), Errors: make([]int64, 0)}
-}
-
-
 type RunStrategy interface {
 	Run() (interface{}, error)
 }
@@ -38,24 +27,24 @@ type LoadRunner struct {
 func (l LoadRunner) RunLoad() {
 	l.endTime = time.Now().Add(time.Second * time.Duration(l.TestDurationSec))
 
-	outchan := make(chan RunTimes)
+	outchan := make(chan reports.RunTimes)
 
 	for i := 0; i < l.ConcurrentRequests; i++ {
 		go l.runFunc(outchan)
 	}
 
-	results := make([]RunTimes, 0)
+	results := make([]reports.RunTimes, 0)
 
 	for ; len(results) < l.ConcurrentRequests; {
 		results = append(results, <-outchan)
 	}
 
-	l.ReportingStrategy.Report(l, results)
+	l.ReportingStrategy.Report(l.ConcurrentRequests, l.TestDurationSec, results)
 }
 
 
-func (l LoadRunner) runFunc(outchan chan<- RunTimes) {
-	rt := NewRunTimes()
+func (l LoadRunner) runFunc(outchan chan<- reports.RunTimes) {
+	rt := reports.NewRunTimes()
 	for  start := time.Now(); start.Before(l.endTime); start = time.Now() {
 		_, err := l.Target.Run()
 		end := time.Now()

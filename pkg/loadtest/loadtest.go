@@ -27,38 +27,51 @@ type LoadRunner struct {
 func (l LoadRunner) RunLoad() {
 	l.endTime = time.Now().Add(time.Second * time.Duration(l.TestDurationSec))
 
-	outchan := make(chan reports.RunTimes)
-
+	runners := make([]*runner, 0)
 	for i := 0; i < l.ConcurrentRequests; i++ {
-		go l.runFunc(outchan)
+		ticker := l.DelayingStrategy.GetTicker()
+
+		r := &runner{Target: l.Target, Ticker: ticker, Results: utils.NewRunTimes()}
+		runners = append(runners, r)
+		go r.runFunc()
 	}
 
-	results := make([]reports.RunTimes, 0)
 
-	for ; len(results) < l.ConcurrentRequests; {
-		results = append(results, <-outchan)
+	time.Sleep(time.Second * time.Duration(l.TestDurationSec))
+
+	for _, r := range runners {
+		r.Ticker.Stop()
+	}
+
+	results := make([]*utils.RunTimes, 0)
+
+	for _, r := range runners {
+		results = append(results, r.Results)
 	}
 
 	l.ReportingStrategy.Report(l.ConcurrentRequests, l.TestDurationSec, results)
 }
 
 
-func (l LoadRunner) runFunc(outchan chan<- reports.RunTimes) {
-	rt := reports.NewRunTimes()
-	for  start := time.Now(); start.Before(l.endTime); start = time.Now() {
-		_, err := l.Target.Run()
+type runner struct {
+	Target			RunStrategy
+	Results			*utils.RunTimes
+	Ticker			*time.Ticker
+}
+
+
+func (r runner) runFunc() {
+	for start := range r.Ticker.C {
+		_, err := r.Target.Run()
 		end := time.Now()
 		if err == nil {
-			fmt.Println(time.Since(start))
-			rt.Times = append(rt.Times, utils.TimeDiffMillis(start, end))
+			//fmt.Println(time.Since(start))
+			r.Results.Times = append(r.Results.Times, utils.TimeDiffMillis(start, end))
 		} else {
 			fmt.Printf("Error: %s\n", time.Since(start))
-			rt.Errors = append(rt.Errors, utils.TimeDiffMillis(start, end))
+			r.Results.Errors = append(r.Results.Errors, utils.TimeDiffMillis(start, end))
 		}
-		l.DelayingStrategy.Wait()
 	}
-
-	outchan <- rt
 }
 
 

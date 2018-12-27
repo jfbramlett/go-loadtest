@@ -2,3 +2,5 @@
 *.sum
 bin/
 .*_build
+
+.idea/

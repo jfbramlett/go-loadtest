@@ -1,12 +1,5 @@
 package db
 
-/**
-INSERT INTO `CompanyIssue` (`CreatedTime`, `IssueId`, `CompanyId`, `CompanyGroupId`, `CustomerId`, `PlatformType`, `RegionId`, `RepId`, `RepIssuePos`, `IssueSecret`, `IssueTopicId`, `FirstCompanyEventLogSeq`, `LastCompanyEventLogSeq`, `CustomerState`, `EndedTime`, `Resolved`, `IssueStatus`, `IssueStatusTime`, `SentimentId`, `UpdateTime`)
-VALUES
-	(1545252128, 28, 200001, 1, 14, 7, 1, NULL, NULL, 'hello world', NULL, 1, 10, 1, NULL, 0, 5, NULL, NULL, '2018-12-19 20:42:08');
-
- */
-
 import (
 	"context"
 	"database/sql"
@@ -14,15 +7,15 @@ import (
 	"time"
 )
 
-type RepActivity struct {
+type CompanyIssue struct {
 	DBConnection 		*sql.DB
 }
 
 
-func (r RepActivity) AddActivity() {
+func (c CompanyIssue) AddActivity() {
 
 	var ctx = context.Background()
-	result, err := r.DBConnection.ExecContext(ctx,
+	result, err := c.DBConnection.ExecContext(ctx,
 		`	INSERT INTO  CompanyIssue (
 								CreatedTime, 
   								CompanyId,

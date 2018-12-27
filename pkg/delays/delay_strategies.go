@@ -1,28 +1,28 @@
 package delays
 
 import (
+	"fmt"
 	"math/rand"
 	"time"
 )
 
-type DelayStrategy interface {
-	Wait()
-}
 
-func NewFixedDelayStrategy(delayMillis int) DelayStrategy {
-	return &fixedDelayStrategy{delayMillis: delayMillis}
+type DelayStrategy interface {
+	GetTicker() *time.Ticker
 }
 
 type fixedDelayStrategy struct {
-	delayMillis		int
+	delayMillis	time.Duration
 }
 
-func (d *fixedDelayStrategy) Wait() {
-	time.Sleep(time.Millisecond * time.Duration(d.delayMillis))
+func (d *fixedDelayStrategy) GetTicker() *time.Ticker {
+	fmt.Printf("using fixed delay of %d ms\n", d.delayMillis)
+	return time.NewTicker(time.Duration(time.Millisecond * d.delayMillis))
 }
 
-func NewRandomDelayStrategy(delayMinMillis int, delayMaxMillis int) DelayStrategy {
-	return &randomDelayStrategy{delayMinMillis: delayMinMillis, delayMaxMillis: delayMaxMillis}
+func NewFixedDelayStrategyFactory(delayMillis int64) DelayStrategy {
+	fmt.Println("Using fixed delay strategy of %d ms", delayMillis)
+	return &fixedDelayStrategy{delayMillis: time.Duration(delayMillis)}
 }
 
 type randomDelayStrategy struct {
@@ -30,20 +30,14 @@ type randomDelayStrategy struct {
 	delayMaxMillis		int
 }
 
-func (d *randomDelayStrategy) Wait() {
+
+func (d *randomDelayStrategy) GetTicker() *time.Ticker {
+	randInterval := time.Duration(rand.Intn(d.delayMaxMillis - d.delayMinMillis) + d.delayMaxMillis)
+	fmt.Printf("using random delay of %d ms\n", randInterval)
+	return time.NewTicker(time.Duration(time.Millisecond * randInterval))
+}
+
+func NewRandomDelayStrategy(delayMinMillis int, delayMaxMillis int) DelayStrategy {
 	rand.Seed(time.Now().Unix())
-	randInterval := int64(rand.Intn(d.delayMaxMillis - d.delayMinMillis) + d.delayMaxMillis)
-	time.Sleep(time.Millisecond * time.Duration(randInterval))
+	return &randomDelayStrategy{delayMinMillis: delayMinMillis, delayMaxMillis: delayMaxMillis}
 }
-
-func NewNoDelayStrategy() DelayStrategy {
-	return &noDelayStrategy{}
-}
-
-type noDelayStrategy struct {
-
-}
-
-func (d *noDelayStrategy) Wait() {
-}
-

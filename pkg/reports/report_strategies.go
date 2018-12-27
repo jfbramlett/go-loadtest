@@ -2,20 +2,12 @@ package reports
 
 import (
 	"fmt"
+	"github.com/jfbramlett/go-loadtest/pkg/utils"
 )
-
-type RunTimes struct {
-	Times 			[]int64
-	Errors			[]int64
-}
-
-func NewRunTimes() RunTimes {
-	return RunTimes{Times: make([]int64, 0), Errors: make([]int64, 0)}
-}
 
 
 type ReportStrategy interface {
-	Report(concurrentRequests int, testDurationSec int64, results []RunTimes)
+	Report(concurrentRequests int, testDurationSec int64, results []*utils.RunTimes)
 }
 
 func NewConsoleReportStrategy(minTimeThreshold, maxTimeThreshold int64) ReportStrategy {
@@ -27,7 +19,7 @@ type consoleReportStrategy struct {
 	MaxTimeThreshold			int64
 }
 
-func (c *consoleReportStrategy) Report(concurrentRequests int, testDurationSec int64, results []RunTimes) {
+func (c *consoleReportStrategy) Report(concurrentRequests int, testDurationSec int64, results []*utils.RunTimes) {
 	var totalRequests int64
 	var totalTime int64
 	var maxTime int64

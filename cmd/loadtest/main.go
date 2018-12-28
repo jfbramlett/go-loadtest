@@ -20,7 +20,7 @@ func main() {
 
     loadtest.RunLoad(60,
         100,
-        delays.NewRandomDelayStrategy(2000, 4000),
+        delays.NewRandomDelayStrategy(2, 10),
         reports.NewConsoleReportStrategy(int64(500), int64(1500)),
         &functionWrapper{})
 

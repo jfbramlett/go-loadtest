@@ -11,24 +11,35 @@ type fixedDelayStrategyFactory struct {
 	delaySec		time.Duration
 }
 
-func (fact *fixedDelayStrategyFactory) GetRunStrategy(funcToRun utils.RunFunc, resultCollector utils.ResultCollector) RunStrategy {
-	fmt.Println(fmt.Sprintf("using fixed delay of %d ms\n", fact.delaySec))
-	return &fixedDelayStrategy{ticker: time.NewTicker(time.Duration(time.Second * fact.delaySec)),
+func (fact *fixedDelayStrategyFactory) GetRunStrategy(runId string, initialDelay int, funcToRun utils.RunFunc, resultCollector utils.ResultCollector) RunStrategy {
+	fmt.Println(fmt.Sprintf("%s: using fixed delay of %d s with initial delay %d s", runId, fact.delaySec, initialDelay))
+	return &fixedDelayStrategy{runId: runId,
+		initialDelay: initialDelay,
+		ticker: time.NewTicker(time.Duration(time.Second * fact.delaySec)),
 		funcToRun: funcToRun,
 		collector: resultCollector}
 }
 
 type fixedDelayStrategy struct {
-	ticker		*time.Ticker
-	funcToRun	utils.RunFunc
-	collector	utils.ResultCollector
+	runId				string
+	initialDelay		int
+	ticker				*time.Ticker
+	funcToRun			utils.RunFunc
+	collector			utils.ResultCollector
 }
 
 func (f *fixedDelayStrategy) Start(wg sync.WaitGroup) {
+	if f.initialDelay > 0 {
+		fmt.Println(f.runId + ": pausing for initial delay")
+		time.Sleep(time.Second * time.Duration(f.initialDelay))
+	}
+
+	fmt.Println(f.runId + ": process running")
 	wg.Add(1)
 	for range f.ticker.C {
 		runTest(f.funcToRun, f.collector)
 	}
+	fmt.Println(f.runId + ": process stopped")
 	wg.Done()
 }
 

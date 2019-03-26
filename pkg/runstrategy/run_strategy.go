@@ -13,6 +13,6 @@ type RunStrategy interface {
 }
 
 type RunStrategyFactory interface {
-	GetRunStrategy(funcToRun utils.RunFunc, resultCollector utils.ResultCollector) RunStrategy
+	GetRunStrategy(runId string, initialDelay int, funcToRun utils.RunFunc, resultCollector utils.ResultCollector) RunStrategy
 }
 

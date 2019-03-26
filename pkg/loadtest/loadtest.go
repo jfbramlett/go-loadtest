@@ -1,6 +1,7 @@
 package loadtest
 
 import (
+	"github.com/jfbramlett/go-loadtest/pkg/naming"
 	"github.com/jfbramlett/go-loadtest/pkg/reports"
 	"github.com/jfbramlett/go-loadtest/pkg/runstrategy"
 	"github.com/jfbramlett/go-loadtest/pkg/utils"
@@ -12,6 +13,7 @@ type LoadRunner struct {
 	TestDurationSec				int64
 	ConcurrentRequests			int
 	RunStrategyFactory			runstrategy.RunStrategyFactory
+	TestNamer					naming.TestNamer
 	ReportingStrategy			reports.ReportStrategy
 
 	Target						utils.RunFunc
@@ -26,9 +28,7 @@ func (l LoadRunner) RunLoad() {
 	runners := make([]runstrategy.RunStrategy, 0)
 	wg := sync.WaitGroup{}
 	for i := 0; i < l.ConcurrentRequests; i++ {
-
-
-		r := l.RunStrategyFactory.GetRunStrategy(l.Target, utils.NewInMemoryRunCollector())
+		r := l.RunStrategyFactory.GetRunStrategy(l.TestNamer.GetName(i), 0, l.Target, utils.NewInMemoryRunCollector())
 		runners = append(runners, r)
 		go r.Start(wg)
 	}
@@ -50,13 +50,17 @@ func (l LoadRunner) RunLoad() {
 }
 
 
-func RunLoad(testDurationSec int64, concurrentRequests int,
-	runStrategy runstrategy.RunStrategyFactory, reportStrategy reports.ReportStrategy,
+func RunLoad(testDurationSec int64,
+	concurrentRequests int,
+	runStrategy runstrategy.RunStrategyFactory,
+	namer naming.TestNamer,
+	reportStrategy reports.ReportStrategy,
 	runFunc utils.RunFunc) {
 
 		loadTester := LoadRunner{TestDurationSec: testDurationSec,
 		ConcurrentRequests: concurrentRequests,
 		RunStrategyFactory:   runStrategy,
+		TestNamer: namer,
 		ReportingStrategy:  reportStrategy,
 		Target:      		runFunc,
 	}

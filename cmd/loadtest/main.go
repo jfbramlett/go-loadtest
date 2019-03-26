@@ -3,6 +3,7 @@ package main
 import (
     "fmt"
     "github.com/jfbramlett/go-loadtest/pkg/loadtest"
+    "github.com/jfbramlett/go-loadtest/pkg/naming"
     "github.com/jfbramlett/go-loadtest/pkg/reports"
     "github.com/jfbramlett/go-loadtest/pkg/runstrategy"
 )
@@ -12,6 +13,7 @@ func main() {
     loadtest.RunLoad(60,
         100,
         runstrategy.NewRandomDelayRunStrategyFactory(2, 10),
+        naming.NewSimpleTestNamer(),
         reports.NewConsoleReportStrategy(int64(500), int64(1500)),
         TestFunc)
 

@@ -2,35 +2,23 @@ package main
 
 import (
     "fmt"
-    "github.com/jfbramlett/go-loadtest/pkg/delays"
     "github.com/jfbramlett/go-loadtest/pkg/loadtest"
     "github.com/jfbramlett/go-loadtest/pkg/reports"
+    "github.com/jfbramlett/go-loadtest/pkg/runstrategy"
 )
 
 // our main function
 func main() {
-    //dbConnection, err := sql.Open("mysql", "root:@tcp(127.0.0.1:3306)/asapp_dev_companies1")
-
-    //if err != nil {
-    //    fmt.Println(err)
-    //}
-    //repActivity := db.RepActivity{DBConnection: dbConnection}
-    //repActivity.AddActivity()
-
-
     loadtest.RunLoad(60,
         100,
-        delays.NewRandomDelayStrategy(2, 10),
+        runstrategy.NewRandomDelayRunStrategyFactory(2, 10),
         reports.NewConsoleReportStrategy(int64(500), int64(1500)),
-        &functionWrapper{})
+        TestFunc)
 
 }
 
 
-type functionWrapper struct {
-}
-
-func (g *functionWrapper) Run() (interface{}, error) {
+func TestFunc() (interface{}, error) {
     fmt.Println("Blah blah blah")
 
     return nil, nil

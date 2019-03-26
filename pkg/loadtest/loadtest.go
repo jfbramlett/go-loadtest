@@ -1,24 +1,20 @@
 package loadtest
 
 import (
-	"fmt"
-	"github.com/jfbramlett/go-loadtest/pkg/delays"
 	"github.com/jfbramlett/go-loadtest/pkg/reports"
+	"github.com/jfbramlett/go-loadtest/pkg/runstrategy"
 	"github.com/jfbramlett/go-loadtest/pkg/utils"
+	"sync"
 	"time"
 )
-
-type RunStrategy interface {
-	Run() (interface{}, error)
-}
 
 type LoadRunner struct {
 	TestDurationSec				int64
 	ConcurrentRequests			int
-	DelayingStrategy			delays.DelayStrategy
+	RunStrategyFactory			runstrategy.RunStrategyFactory
 	ReportingStrategy			reports.ReportStrategy
 
-	Target						RunStrategy
+	Target						utils.RunFunc
 
 	endTime						time.Time
 }
@@ -27,63 +23,42 @@ type LoadRunner struct {
 func (l LoadRunner) RunLoad() {
 	l.endTime = time.Now().Add(time.Second * time.Duration(l.TestDurationSec))
 
-	runners := make([]*runner, 0)
+	runners := make([]runstrategy.RunStrategy, 0)
+	wg := sync.WaitGroup{}
 	for i := 0; i < l.ConcurrentRequests; i++ {
-		ticker := l.DelayingStrategy.GetTicker()
 
-		r := &runner{Target: l.Target, Ticker: ticker, Results: utils.NewRunTimes()}
+
+		r := l.RunStrategyFactory.GetRunStrategy(l.Target, utils.NewInMemoryRunCollector())
 		runners = append(runners, r)
-		go r.runFunc()
+		go r.Start(wg)
 	}
-
 
 	time.Sleep(time.Second * time.Duration(l.TestDurationSec))
 
 	for _, r := range runners {
-		r.Ticker.Stop()
+		r.Stop()
 	}
+	wg.Wait()
 
-	results := make([]*utils.RunTimes, 0)
+	results := make([]utils.ResultCollector, 0)
 
 	for _, r := range runners {
-		results = append(results, r.Results)
+		results = append(results, r.GetResults())
 	}
 
 	l.ReportingStrategy.Report(l.ConcurrentRequests, l.TestDurationSec, results)
 }
 
 
-type runner struct {
-	Target			RunStrategy
-	Results			*utils.RunTimes
-	Ticker			*time.Ticker
-}
-
-
-func (r runner) runFunc() {
-	for start := range r.Ticker.C {
-		_, err := r.Target.Run()
-		end := time.Now()
-		if err == nil {
-			//fmt.Println(time.Since(start))
-			r.Results.Times = append(r.Results.Times, utils.TimeDiffMillis(start, end))
-		} else {
-			fmt.Printf("Error: %s\n", time.Since(start))
-			r.Results.Errors = append(r.Results.Errors, utils.TimeDiffMillis(start, end))
-		}
-	}
-}
-
-
 func RunLoad(testDurationSec int64, concurrentRequests int,
-	delayStrategy delays.DelayStrategy, reportStrategy reports.ReportStrategy,
-	runStrategy RunStrategy) {
+	runStrategy runstrategy.RunStrategyFactory, reportStrategy reports.ReportStrategy,
+	runFunc utils.RunFunc) {
 
 		loadTester := LoadRunner{TestDurationSec: testDurationSec,
 		ConcurrentRequests: concurrentRequests,
-		DelayingStrategy:   delayStrategy,
+		RunStrategyFactory:   runStrategy,
 		ReportingStrategy:  reportStrategy,
-		Target:      		runStrategy,
+		Target:      		runFunc,
 	}
 
 	loadTester.RunLoad()

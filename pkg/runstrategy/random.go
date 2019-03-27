@@ -1,9 +1,8 @@
 package runstrategy
 
 import (
-	"fmt"
+	"github.com/jfbramlett/go-loadtest/pkg/collector"
 	"github.com/jfbramlett/go-loadtest/pkg/utils"
-	"math/rand"
 	"sync"
 	"time"
 )
@@ -13,9 +12,8 @@ type randomDelayStrategyFactory struct {
 	delayMaxSec		int
 }
 
-func (fact *randomDelayStrategyFactory) GetRunStrategy(runId string, initialDelay int, funcToRun utils.RunFunc, resultCollector utils.ResultCollector) RunStrategy {
-	fmt.Println(fmt.Sprintf("%s: using random delay between %d ms and %d ms", runId, fact.delayMinSec, fact.delayMaxSec))
-	return &randomDelayStrategy{runId: runId,
+func (fact *randomDelayStrategyFactory) GetRunStrategy(testId string, initialDelay int, funcToRun utils.RunFunc, resultCollector collector.ResultCollector) RunStrategy {
+	return &randomDelayStrategy{testId: testId,
 		initialDelay: initialDelay,
 		delayMinSec: fact.delayMinSec,
 		delayMaxSec: fact.delayMaxSec,
@@ -24,32 +22,34 @@ func (fact *randomDelayStrategyFactory) GetRunStrategy(runId string, initialDela
 }
 
 type randomDelayStrategy struct {
-	runId			string
+	testId			string
 	initialDelay	int
 	delayMinSec		int
 	delayMaxSec		int
 	ticker			*time.Ticker
 	funcToRun		utils.RunFunc
-	collector		utils.ResultCollector
+	collector		collector.ResultCollector
 	stopped			bool
 }
 
 func (r *randomDelayStrategy) Start(wg sync.WaitGroup) {
+	wg.Add(1)
+
 	if r.initialDelay > 0 {
-		fmt.Println(r.runId + ": pausing for initial delay")
+		utils.Logt(r.testId, ": pausing for initial delay")
 		time.Sleep(time.Second * time.Duration(r.initialDelay))
 	}
 
-	wg.Add(1)
+	utils.Logt(r.testId, ": starting test")
 	ticker := r.newTicker()
 	for !r.stopped {
 		select {
 		case <-ticker.C:
-			runTest(r.funcToRun, r.collector)
+			runTest(r.testId, r.funcToRun, r.collector)
 			ticker = r.newTicker()
 		}
 	}
-	fmt.Println(r.runId + ": process stopped")
+	utils.Logt(r.testId, ": process stopped")
 	wg.Done()
 }
 
@@ -57,19 +57,17 @@ func (r *randomDelayStrategy) Stop() {
 	r.stopped = true
 }
 
-func (r *randomDelayStrategy) GetResults() utils.ResultCollector {
+func (r *randomDelayStrategy) GetResults() collector.ResultCollector {
 	return r.collector
 }
 
 
 func (r *randomDelayStrategy) newTicker() *time.Ticker {
-	randInterval := time.Duration(rand.Intn(r.delayMaxSec - r.delayMinSec) + r.delayMinSec)
-	fmt.Println(fmt.Sprintf("%s: using random delay of %d sec", r.runId, randInterval))
+	randInterval := time.Duration(utils.RandomIntBetween(r.delayMinSec, r.delayMaxSec))
 	return time.NewTicker(time.Duration(time.Second * randInterval))
 }
 
 func NewRandomDelayRunStrategyFactory(minDelaySec int, maxDelaySec int) RunStrategyFactory {
-	fmt.Println(fmt.Sprintf("Using random delay strategy betweem %d s and %d s", minDelaySec, maxDelaySec))
 	return &randomDelayStrategyFactory{delayMinSec: minDelaySec, delayMaxSec: maxDelaySec}
 }
 

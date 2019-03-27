@@ -1,20 +1,20 @@
 package runstrategy
 
 import (
-	"fmt"
+	"github.com/jfbramlett/go-loadtest/pkg/collector"
 	"github.com/jfbramlett/go-loadtest/pkg/utils"
 	"time"
 )
 
 // simple utility used to run a test
-func runTest(funcToRun utils.RunFunc, runCollector utils.ResultCollector) {
+func runTest(testId string, funcToRun utils.RunFunc, runCollector collector.ResultCollector) {
 	start := time.Now()
 	_, err := funcToRun()
 	end := time.Now()
 	if err == nil {
-		runCollector.AddRuntime(utils.TimeDiffMillis(start, end))
+		runCollector.AddPassedTest(testId, utils.TimeDiffMillis(start, end))
 	} else {
-		fmt.Printf("Error: %s\n", time.Since(start))
-		runCollector.AddErrorRuntime(utils.TimeDiffMillis(start, end))
+		utils.Logtf(testId, "Error - %s\n", time.Since(start))
+		runCollector.AddFailedTest(testId, utils.TimeDiffMillis(start, end), err)
 	}
 }

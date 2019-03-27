@@ -1,7 +1,9 @@
 package loadtest
 
 import (
+	"github.com/jfbramlett/go-loadtest/pkg/collector"
 	"github.com/jfbramlett/go-loadtest/pkg/naming"
+	"github.com/jfbramlett/go-loadtest/pkg/rampstrategy"
 	"github.com/jfbramlett/go-loadtest/pkg/reports"
 	"github.com/jfbramlett/go-loadtest/pkg/runstrategy"
 	"github.com/jfbramlett/go-loadtest/pkg/utils"
@@ -12,8 +14,10 @@ import (
 type LoadRunner struct {
 	TestDurationSec				int64
 	ConcurrentRequests			int
+	RampUpStrategy				rampstrategy.RampUpStrategy
 	RunStrategyFactory			runstrategy.RunStrategyFactory
 	TestNamer					naming.TestNamer
+	TestCollector				collector.ResultCollector
 	ReportingStrategy			reports.ReportStrategy
 
 	Target						utils.RunFunc
@@ -25,45 +29,53 @@ type LoadRunner struct {
 func (l LoadRunner) RunLoad() {
 	l.endTime = time.Now().Add(time.Second * time.Duration(l.TestDurationSec))
 
+	utils.Log("Preparing tests")
 	runners := make([]runstrategy.RunStrategy, 0)
-	wg := sync.WaitGroup{}
 	for i := 0; i < l.ConcurrentRequests; i++ {
-		r := l.RunStrategyFactory.GetRunStrategy(l.TestNamer.GetName(i), 0, l.Target, utils.NewInMemoryRunCollector())
+		r := l.RampUpStrategy.CreateRunStrategy(l.TestNamer.GetName(i), l.RunStrategyFactory, l.TestCollector, l.Target)
 		runners = append(runners, r)
+	}
+
+	utils.Log("Starting runners")
+	wg := sync.WaitGroup{}
+	for _, r := range runners {
 		go r.Start(wg)
 	}
 
+	utils.Log("Waiting for test time")
 	time.Sleep(time.Second * time.Duration(l.TestDurationSec))
 
+	utils.Log("Stopping runners")
 	for _, r := range runners {
 		r.Stop()
 	}
+	utils.Log("Waiting for tests to end")
 	wg.Wait()
 
-	results := make([]utils.ResultCollector, 0)
 
-	for _, r := range runners {
-		results = append(results, r.GetResults())
-	}
-
-	l.ReportingStrategy.Report(l.ConcurrentRequests, l.TestDurationSec, results)
+	l.ReportingStrategy.Report(l.ConcurrentRequests, l.TestDurationSec, l.TestCollector)
 }
 
 
 func RunLoad(testDurationSec int64,
 	concurrentRequests int,
+	rampUpStrategy rampstrategy.RampUpStrategy,
 	runStrategy runstrategy.RunStrategyFactory,
 	namer naming.TestNamer,
+	collector collector.ResultCollector,
 	reportStrategy reports.ReportStrategy,
 	runFunc utils.RunFunc) {
 
-		loadTester := LoadRunner{TestDurationSec: testDurationSec,
-		ConcurrentRequests: concurrentRequests,
-		RunStrategyFactory:   runStrategy,
-		TestNamer: namer,
-		ReportingStrategy:  reportStrategy,
-		Target:      		runFunc,
-	}
+		loadTester := LoadRunner{
+			TestDurationSec: 		testDurationSec,
+			ConcurrentRequests: 	concurrentRequests,
+			RampUpStrategy: 		rampUpStrategy,
+			RunStrategyFactory:   	runStrategy,
+			TestNamer: 				namer,
+			TestCollector: 			collector,
+			ReportingStrategy:  	reportStrategy,
+			Target:      			runFunc,
+		}
 
 	loadTester.RunLoad()
 }

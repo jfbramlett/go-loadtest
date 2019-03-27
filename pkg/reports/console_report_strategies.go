@@ -3,27 +3,29 @@ package reports
 import (
 	"github.com/jfbramlett/go-loadtest/pkg/collector"
 	"github.com/jfbramlett/go-loadtest/pkg/utils"
+	"time"
 )
 
 
-func NewConsoleReportStrategy(minTimeThreshold, maxTimeThreshold int64) ReportStrategy {
+func NewConsoleReportStrategy(minTimeThreshold, maxTimeThreshold time.Duration) ReportStrategy {
 	return &consoleReportStrategy{MinTimeThreshold: minTimeThreshold, MaxTimeThreshold: maxTimeThreshold}
 }
 
 type consoleReportStrategy struct {
-	MinTimeThreshold			int64
-	MaxTimeThreshold			int64
+	MinTimeThreshold			time.Duration
+	MaxTimeThreshold			time.Duration
 }
 
-func (c *consoleReportStrategy) Report(concurrentRequests int, testDurationSec int64, results collector.ResultCollector) {
+func (c *consoleReportStrategy) Report(concurrentRequests int, testDurationSec time.Duration, results collector.ResultCollector) {
 	var totalRequests int64
-	var totalTime int64
-	var maxTime int64
-	var minTime int64
+	var totalTime time.Duration
+	var maxTime time.Duration
+	var minTime time.Duration
 	var errors int
 	var totalAboveThreshold int64
 	var totalLessThanMin int64
 	var totalInMiddle int64
+
 	for _, t := range results.GetPassedTests() {
 		totalRequests++
 		totalTime = totalTime + t.Duration
@@ -44,7 +46,7 @@ func (c *consoleReportStrategy) Report(concurrentRequests int, testDurationSec i
 	}
 	errors = len(results.GetFailedTests())
 
-	avgRequestTime := totalTime / totalRequests
+	avgRequestTime := int64(totalTime/time.Millisecond) / totalRequests
 	lessThanPercent := (float64(totalLessThanMin) / float64(totalRequests)) * float64(100)
 	middlePercent := (float64(totalInMiddle) / float64(totalRequests)) * float64(100)
 	thresholdPercent := (float64(totalAboveThreshold)/ float64(totalRequests)) * float64(100)
@@ -59,11 +61,12 @@ Min Time %d ms
 Num Errors %d
 Num Below %d ms %d (%.2f %%)
 Num Between %d ms and %d ms %d (%.2f %%)
-Num Above %d ms %d (%.2f %%)\n`,
-		concurrentRequests, testDurationSec, totalTime, totalRequests, avgRequestTime, maxTime, minTime, errors,
-		c.MinTimeThreshold, totalLessThanMin, lessThanPercent,
-		c.MinTimeThreshold, c.MaxTimeThreshold, totalInMiddle, middlePercent,
-		c.MinTimeThreshold, totalAboveThreshold, thresholdPercent)
+Num Above %d ms %d (%.2f %%)`,
+		concurrentRequests, int64(testDurationSec.Seconds()), int64(totalTime/time.Millisecond), totalRequests, avgRequestTime,
+		int64(maxTime/time.Millisecond), int64(minTime/time.Millisecond), errors,
+		int64(c.MinTimeThreshold/time.Millisecond), totalLessThanMin, lessThanPercent,
+		int64(c.MinTimeThreshold/time.Millisecond), int64(c.MaxTimeThreshold/time.Millisecond), totalInMiddle, middlePercent,
+		int64(c.MaxTimeThreshold/time.Millisecond), totalAboveThreshold, thresholdPercent)
 
 }
 

@@ -1,4 +1,5 @@
 package utils
 
+import "context"
 
-type RunFunc func() (interface{}, error)
+type RunFunc func(ctx context.Context) error

@@ -1,6 +1,7 @@
 package main
 
 import (
+    "context"
     "github.com/jfbramlett/go-loadtest/pkg/collector"
     "github.com/jfbramlett/go-loadtest/pkg/loadprofile"
     "github.com/jfbramlett/go-loadtest/pkg/naming"
@@ -16,9 +17,10 @@ func main() {
 
     concurrentUsers := 5
     testLengthSec := 60
-    //testInterval := 2
+    testInterval := 2
     //loadProfile := loadprofile.NewStaticProfile(concurrentUsers, testLengthSec, testInterval)
-    loadProfile := loadprofile.NewRandomProfile(concurrentUsers, testLengthSec)
+    //loadProfile := loadprofile.NewRandomProfile(concurrentUsers, testLengthSec)
+    loadProfile := loadprofile.NewPartialRandomProfile(concurrentUsers, testLengthSec, testInterval)
 
 
     resultCollector := collector.NewInMemoryRunCollector()
@@ -36,8 +38,8 @@ func main() {
 }
 
 
-func TestFunc() (interface{}, error) {
-    utils.Log("Blah blah blah")
+func TestFunc(ctx context.Context) error {
+    utils.Logt(utils.GetTestId(ctx), "Blah blah blah")
     time.Sleep(time.Duration(utils.RandomIntBetween(0, 5)) * time.Second)
-    return nil, nil
+    return nil
 }

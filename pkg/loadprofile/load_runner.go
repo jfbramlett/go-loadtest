@@ -15,7 +15,7 @@ func (l *LoadRunner) Run(loadProfile LoadProfile, runFunc utils.RunFunc, namer n
 	resultCollector.Start()
 
 	wg := sync.WaitGroup{}
-	for _, r := range loadProfile.GetRunners(namer, runFunc, resultCollector) {
+	for _, r := range loadProfile.GetLoad(namer, runFunc, resultCollector) {
 		wg.Add(1)
 		go l.runWrapper(r, &wg)
 	}
@@ -27,8 +27,8 @@ func (l *LoadRunner) Run(loadProfile LoadProfile, runFunc utils.RunFunc, namer n
 }
 
 
-func (l *LoadRunner) runWrapper(runner Runner, wg *sync.WaitGroup) {
-	runner.Run()
+func (l *LoadRunner) runWrapper(load Load, wg *sync.WaitGroup) {
+	load.Run()
 	wg.Done()
 }
 

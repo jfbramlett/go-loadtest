@@ -1,6 +1,7 @@
 package loadprofile
 
 import (
+	"context"
 	"github.com/jfbramlett/go-loadtest/pkg/collector"
 	"github.com/jfbramlett/go-loadtest/pkg/naming"
 	"github.com/jfbramlett/go-loadtest/pkg/utils"
@@ -14,13 +15,16 @@ type staticProfile struct {
 }
 
 
-func (s *staticProfile) GetRunners(namer naming.TestNamer, runFunc utils.RunFunc, resultCollector collector.ResultCollector) []Runner {
-	runners := make([]Runner, 0)
-	step := RunStep{startDelay: time.Duration(0), runTime: s.testLength, invocationDelay: s.interval}
-	steps := []RunStep {step}
+func (s *staticProfile) GetLoad(namer naming.TestNamer, runFunc utils.RunFunc, resultCollector collector.ResultCollector) []Load {
+	runners := make([]Load, 0)
+
+	runFuncStep := NewRunFuncStep(runFunc, resultCollector)
+	runForStep := NewRunForStep(s.testLength, runFuncStep, s.interval, false)
+	runProfile := []Step {runForStep}
 
 	for i := 0; i < s.concurrentUsers; i++ {
-		runners = append(runners, NewRunner(namer.GetName(i), steps, runFunc, resultCollector))
+		ctx := context.WithValue(context.Background(), "testId", namer.GetName(i))
+		runners = append(runners, NewLoad(ctx, runProfile))
 	}
 
 	return runners

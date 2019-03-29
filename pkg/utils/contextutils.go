@@ -7,6 +7,6 @@ func GetTestId(ctx context.Context) string {
 	if testId != nil {
 		return testId.(string)
 	}
-	return "unknown"
+	return "N/A"
 }
 

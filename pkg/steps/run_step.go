@@ -3,32 +3,35 @@ package steps
 import (
 	"context"
 	"github.com/jfbramlett/go-loadtest/pkg/collector"
+	"github.com/jfbramlett/go-loadtest/pkg/logging"
+	"github.com/jfbramlett/go-loadtest/pkg/testwrapper"
 	"github.com/jfbramlett/go-loadtest/pkg/utils"
 	"time"
 )
 
 // Step that executes our run function
 type runFuncStep struct {
-	runFunc				utils.RunFunc
-	resultCollector 	collector.ResultCollector
+	test            testwrapper.Test
+	resultCollector collector.ResultCollector
 }
 
 func (r *runFuncStep) Execute(ctx context.Context) error {
+	logger := logging.GetLogger(ctx, r)
 	timerStart := time.Now()
-	err := r.runFunc(ctx)
+	err := r.test.Run(ctx)
 
 	if err == nil {
 		r.resultCollector.AddTestResult(collector.NewPassedTest(utils.GetTestId(ctx), time.Since(timerStart)))
 	} else {
-		utils.Logtf(utils.GetTestId(ctx), "Error - %s\n", err)
+		logger.Error(ctx, err, "Error")
 		r.resultCollector.AddTestResult(collector.NewFailedTest(utils.GetTestId(ctx), time.Since(timerStart), err))
 	}
 
 	return nil
 }
 
-func NewRunFuncStep(runFunc utils.RunFunc, resultCollector collector.ResultCollector) Step {
-	return &runFuncStep{runFunc: runFunc, resultCollector: resultCollector}
+func NewRunFuncStep(test testwrapper.Test, resultCollector collector.ResultCollector) Step {
+	return &runFuncStep{test: test, resultCollector: resultCollector}
 }
 
 

@@ -5,6 +5,7 @@ import (
     "github.com/jfbramlett/go-loadtest/pkg/collector"
     "github.com/jfbramlett/go-loadtest/pkg/loadprofile"
     "github.com/jfbramlett/go-loadtest/pkg/loadtester"
+    "github.com/jfbramlett/go-loadtest/pkg/logging"
     "github.com/jfbramlett/go-loadtest/pkg/naming"
     "github.com/jfbramlett/go-loadtest/pkg/reports"
     "github.com/jfbramlett/go-loadtest/pkg/utils"
@@ -28,7 +29,7 @@ func main() {
 
     test := loadtester.LoadTester{}
 
-    test.Run(loadProfileBuilder, TestFunc, naming.NewSimpleTestNamer(), resultCollector)
+    test.Run(loadProfileBuilder, &Tester{}, naming.NewSimpleTestNamer(), resultCollector)
 
     reporter := reports.NewConsoleReportStrategy(time.Duration(500) * time.Millisecond, time.Duration(750) * time.Millisecond)
 
@@ -36,8 +37,12 @@ func main() {
 }
 
 
-func TestFunc(ctx context.Context) error {
-    utils.Logt(utils.GetTestId(ctx), "Blah blah blah")
+type Tester struct {
+}
+
+func (t *Tester) Run(ctx context.Context) error {
+    logger := logging.GetLogger(ctx, t)
+    logger.Info(ctx, "Blah blah blah")
     time.Sleep(time.Duration(utils.RandomIntBetween(0, 5)) * time.Second)
     return nil
 }

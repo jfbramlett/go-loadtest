@@ -2,6 +2,7 @@ package loadprofile
 
 import (
 	"github.com/jfbramlett/go-loadtest/pkg/collector"
+	"github.com/jfbramlett/go-loadtest/pkg/testwrapper"
 	"github.com/jfbramlett/go-loadtest/pkg/steps"
 	"github.com/jfbramlett/go-loadtest/pkg/utils"
 	"time"
@@ -14,7 +15,7 @@ type partialRandomProfileBuilder struct {
 }
 
 
-func (p *partialRandomProfileBuilder) GetLoadProfiles(runFunc utils.RunFunc, resultCollector collector.ResultCollector) []LoadProfile {
+func (p *partialRandomProfileBuilder) GetLoadProfiles(runFunc testwrapper.Test, resultCollector collector.ResultCollector) []LoadProfile {
 	runners := make([]LoadProfile, 0)
 
 	randWaitStep := steps.NewRandomWaitStep(time.Duration(0), time.Duration(int(p.testLength/time.Millisecond/4))*time.Millisecond, utils.RandomSecondDuration)

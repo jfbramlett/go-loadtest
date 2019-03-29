@@ -2,8 +2,8 @@ package loadprofile
 
 import (
 	"github.com/jfbramlett/go-loadtest/pkg/collector"
+	"github.com/jfbramlett/go-loadtest/pkg/testwrapper"
 	"github.com/jfbramlett/go-loadtest/pkg/steps"
-	"github.com/jfbramlett/go-loadtest/pkg/utils"
 	"time"
 )
 
@@ -14,7 +14,7 @@ type staticProfileBuilder struct {
 }
 
 
-func (s *staticProfileBuilder) GetLoadProfiles(runFunc utils.RunFunc, resultCollector collector.ResultCollector) []LoadProfile {
+func (s *staticProfileBuilder) GetLoadProfiles(runFunc testwrapper.Test, resultCollector collector.ResultCollector) []LoadProfile {
 	runners := make([]LoadProfile, 0)
 
 	runFuncStep := steps.NewRunFuncStep(runFunc, resultCollector)

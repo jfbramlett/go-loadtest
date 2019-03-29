@@ -4,16 +4,19 @@ import (
 	"context"
 	"github.com/jfbramlett/go-loadtest/pkg/collector"
 	"github.com/jfbramlett/go-loadtest/pkg/loadprofile"
+	"github.com/jfbramlett/go-loadtest/pkg/logging"
 	"github.com/jfbramlett/go-loadtest/pkg/naming"
-	"github.com/jfbramlett/go-loadtest/pkg/utils"
+	"github.com/jfbramlett/go-loadtest/pkg/testwrapper"
 	"sync"
 )
 
 type LoadTester struct {
 }
 
-func (l *LoadTester) Run(loadProfileBuilder loadprofile.LoadProfileBuilder, runFunc utils.RunFunc, namer naming.TestNamer, resultCollector collector.ResultCollector) {
-	utils.Log("Starting runners")
+func (l *LoadTester) Run(loadProfileBuilder loadprofile.LoadProfileBuilder, runFunc testwrapper.Test, namer naming.TestNamer, resultCollector collector.ResultCollector) {
+	logger := logging.NewSimpleLogger(l)
+
+	logger.Info(context.Background(), "Starting runners")
 	resultCollector.Start()
 
 	wg := sync.WaitGroup{}
@@ -23,9 +26,9 @@ func (l *LoadTester) Run(loadProfileBuilder loadprofile.LoadProfileBuilder, runF
 		go l.runWrapper(r, ctx, &wg)
 	}
 
-	utils.Log("Waiting for tests to end")
+	logger.Info(context.Background(), "Waiting for tests to end")
 	wg.Wait()
-	utils.Log("Tests completed")
+	logger.Info(context.Background(), "Tests completed")
 	resultCollector.Stop()
 }
 

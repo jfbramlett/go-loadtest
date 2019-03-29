@@ -4,6 +4,7 @@ import (
     "context"
     "github.com/jfbramlett/go-loadtest/pkg/collector"
     "github.com/jfbramlett/go-loadtest/pkg/loadprofile"
+    "github.com/jfbramlett/go-loadtest/pkg/loadtester"
     "github.com/jfbramlett/go-loadtest/pkg/naming"
     "github.com/jfbramlett/go-loadtest/pkg/reports"
     "github.com/jfbramlett/go-loadtest/pkg/utils"
@@ -18,19 +19,16 @@ func main() {
     concurrentUsers := 5
     testLengthSec := 60
     testInterval := 2
-    //loadProfile := loadprofile.NewStaticProfile(concurrentUsers, testLengthSec, testInterval)
-    //loadProfile := loadprofile.NewRandomProfile(concurrentUsers, testLengthSec)
-    loadProfile := loadprofile.NewPartialRandomProfile(concurrentUsers, testLengthSec, testInterval)
+    //loadProfileBuilder := loadprofile.NewStaticProfileBuilder(concurrentUsers, testLengthSec, testInterval)
+    //loadProfileBuilder := loadprofile.NewRandomProfileBuilder(concurrentUsers, testLengthSec)
+    loadProfileBuilder := loadprofile.NewPartialRandomProfileBuilder(concurrentUsers, testLengthSec, testInterval)
 
 
     resultCollector := collector.NewInMemoryRunCollector()
 
-    loadRunner := loadprofile.LoadRunner{}
+    test := loadtester.LoadTester{}
 
-    loadRunner.Run(loadProfile,
-        TestFunc,
-        naming.NewSimpleTestNamer(),
-        resultCollector)
+    test.Run(loadProfileBuilder, TestFunc, naming.NewSimpleTestNamer(), resultCollector)
 
     reporter := reports.NewConsoleReportStrategy(time.Duration(500) * time.Millisecond, time.Duration(750) * time.Millisecond)
 

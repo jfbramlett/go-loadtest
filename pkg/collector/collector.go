@@ -1,8 +1,7 @@
 package collector
 
 import (
-	"github.com/prometheus/client_golang/prometheus"
-	"github.com/prometheus/client_golang/prometheus/promauto"
+	"github.com/jfbramlett/go-loadtest/pkg/metrics"
 	"time"
 )
 
@@ -56,21 +55,15 @@ func (i *inmemoryResultCollector) GetFailedTests() []TestResult {
 
 func (i *inmemoryResultCollector) Start() {
 	go func() {
-		opsPassed := promauto.NewCounter(prometheus.CounterOpts{
-			Name: "tests_passed",
-			Help: "The total number of tests that passed",
-		})
-		opsFailed := promauto.NewCounter(prometheus.CounterOpts{
-			Name: "tests_failed",
-			Help: "The total number of tests that passed",
-		})
+		opsPassed := metrics.NewCounter("tests_passed", "The total number of tests that passed")
+		opsFailed := metrics.NewCounter("tests_faoiled", "The total number of tests that passed")
 
 		for t := range i.collector {
 			if t.Passed {
-				opsPassed.Inc()
+				opsPassed.WithLabelValues(t.TestId).Inc()
 				i.passed = append(i.passed, t)
 			} else {
-				opsFailed.Inc()
+				opsFailed.WithLabelValues(t.TestId).Inc()
 				i.failed = append(i.failed, t)
 			}
 		}

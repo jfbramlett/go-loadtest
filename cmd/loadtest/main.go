@@ -10,11 +10,17 @@ import (
     "github.com/jfbramlett/go-loadtest/pkg/reports"
     "github.com/jfbramlett/go-loadtest/pkg/utils"
     "math/rand"
+    "net/http"
     "time"
+
+    "github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 // our main function
 func main() {
+    http.Handle("/metrics", promhttp.Handler())
+    go http.ListenAndServe(":2112", nil)
+
     rand.Seed(time.Now().UTC().UnixNano())
 
     concurrentUsers := 5

@@ -18,7 +18,7 @@ type consoleReportStrategy struct {
 	MaxTimeThreshold			time.Duration
 }
 
-func (c *consoleReportStrategy) Report(concurrentRequests int, testDurationSec time.Duration, results collector.ResultCollector) {
+func (c *consoleReportStrategy) Report(ctx context.Context, concurrentRequests int, testDurationSec time.Duration, results collector.ResultCollector) {
 	var totalRequests int64
 	var totalTime time.Duration
 	var maxTime time.Duration
@@ -53,7 +53,7 @@ func (c *consoleReportStrategy) Report(concurrentRequests int, testDurationSec t
 	middlePercent := (float64(totalInMiddle) / float64(totalRequests)) * float64(100)
 	thresholdPercent := (float64(totalAboveThreshold)/ float64(totalRequests)) * float64(100)
 
-	logger := logging.NewSimpleLogger(c)
+	logger, ctx := logging.GetLoggerFromContext(ctx, c)
 	msg := fmt.Sprintf(`Total Concurrent Requests: %d
 Test Duration %d s
 Total Time %d ms

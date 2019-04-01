@@ -1,11 +1,12 @@
 package reports
 
 import (
+	"context"
 	"github.com/jfbramlett/go-loadtest/pkg/collector"
 	"time"
 )
 
 
 type ReportStrategy interface {
-	Report(concurrentRequests int, testDurationSec time.Duration, results collector.ResultCollector)
+	Report(ctx context.Context, concurrentRequests int, testDurationSec time.Duration, results collector.ResultCollector)
 }

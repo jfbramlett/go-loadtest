@@ -7,22 +7,23 @@ import (
 	"github.com/jfbramlett/go-loadtest/pkg/logging"
 	"github.com/jfbramlett/go-loadtest/pkg/naming"
 	"github.com/jfbramlett/go-loadtest/pkg/testwrapper"
+	"github.com/jfbramlett/go-loadtest/pkg/utils"
 	"sync"
 )
 
 type LoadTester struct {
 }
 
-func (l *LoadTester) Run(loadProfileBuilder loadprofile.LoadProfileBuilder, runFunc testwrapper.Test, namer naming.TestNamer, resultCollector collector.ResultCollector) {
-	logger := logging.NewSimpleLogger(l)
+func (l *LoadTester) Run(ctx context.Context, loadProfileBuilder loadprofile.LoadProfileBuilder, runFunc testwrapper.Test, namer naming.TestNamer, resultCollector collector.ResultCollector) {
+	logger, ctx := logging.GetLoggerFromContext(ctx, l)
 
-	logger.Info(context.Background(), "Starting runners")
+	logger.Info(ctx, "Starting runners")
 	resultCollector.Start()
 
 	wg := sync.WaitGroup{}
 	for i, r := range loadProfileBuilder.GetLoadProfiles(runFunc, resultCollector) {
 		wg.Add(1)
-		ctx := context.WithValue(context.Background(), "testId", namer.GetName(i))
+		ctx := utils.SetTestIdInContext(ctx, namer.GetName(i))
 		go l.runWrapper(r, ctx, &wg)
 	}
 

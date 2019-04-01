@@ -29,11 +29,11 @@ func main() {
 
     test := loadtester.LoadTester{}
 
-    test.Run(loadProfileBuilder, &Tester{}, naming.NewSimpleTestNamer(), resultCollector)
+    test.Run(context.Background(), loadProfileBuilder, &Tester{}, naming.NewSimpleTestNamer(), resultCollector)
 
     reporter := reports.NewConsoleReportStrategy(time.Duration(500) * time.Millisecond, time.Duration(750) * time.Millisecond)
 
-    reporter.Report(concurrentUsers, time.Duration(testLengthSec) * time.Second, resultCollector)
+    reporter.Report(context.Background(), concurrentUsers, time.Duration(testLengthSec) * time.Second, resultCollector)
 }
 
 
@@ -41,7 +41,7 @@ type Tester struct {
 }
 
 func (t *Tester) Run(ctx context.Context) error {
-    logger := logging.GetLogger(ctx, t)
+    logger, ctx := logging.GetLoggerFromContext(ctx, t)
     logger.Info(ctx, "Blah blah blah")
     time.Sleep(time.Duration(utils.RandomIntBetween(0, 5)) * time.Second)
     return nil

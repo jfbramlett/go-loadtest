@@ -6,6 +6,8 @@ import (
 )
 
 
+const loggerKey = "logger"
+
 type Logger interface {
 	Info(ctx context.Context, msg string)
 	Infof(ctx context.Context, fmtString string, params ...interface{})
@@ -15,16 +17,24 @@ type Logger interface {
 	Warnf(ctx context.Context, fmtString string, params ...interface{})
 	Error(ctx context.Context, err error, msg string)
 	Errorf(ctx context.Context, err error, fmtString string, params ...interface{})
-
-	NewLogger(tClass interface{}) Logger
 }
 
 
-func GetLogger(ctx context.Context, tClass interface{}) Logger {
-	ctxLogger := ctx.Value("logger")
+func setLoggerInContext(ctx context.Context, loggerFor string, logger Logger) context.Context {
+	return context.WithValue(ctx, loggerFor, logger)
+}
+
+func GetLoggerFromContext(ctx context.Context, tClass interface{}) (Logger, context.Context) {
+	cls := fmt.Sprintf("%T", tClass)
+	logKey := fmt.Sprintf("%s.%s", loggerKey, cls)
+
+	ctxLogger := ctx.Value(logKey)
 	if ctxLogger != nil {
-		logger := ctxLogger.(Logger)
-		return logger.NewLogger(fmt.Sprintf("%T", tClass))
+		return ctxLogger.(Logger), ctx
+
 	}
-	return NewSimpleLogger(tClass)
+
+	logger := NewSimpleLogger(cls)
+	updatedCtx := setLoggerInContext(ctx, logKey, logger)
+	return logger, updatedCtx
 }

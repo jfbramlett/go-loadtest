@@ -18,7 +18,7 @@ type defaultLoadProfile struct {
 
 // runs the loop that executes our run steps around running the test
 func (r *defaultLoadProfile) Run(ctx context.Context) {
-	logger := logging.GetLogger(ctx, r)
+	logger, ctx := logging.GetLoggerFromContext(ctx, r)
 	logger.Info(ctx, "starting run")
 	for _, step := range r.runSteps {
 		err := step.Execute(ctx)

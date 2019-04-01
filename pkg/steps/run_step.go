@@ -16,15 +16,15 @@ type runFuncStep struct {
 }
 
 func (r *runFuncStep) Execute(ctx context.Context) error {
-	logger := logging.GetLogger(ctx, r)
+	logger, ctx := logging.GetLoggerFromContext(ctx, r)
 	timerStart := time.Now()
 	err := r.test.Run(ctx)
 
 	if err == nil {
-		r.resultCollector.AddTestResult(collector.NewPassedTest(utils.GetTestId(ctx), time.Since(timerStart)))
+		r.resultCollector.AddTestResult(collector.NewPassedTest(utils.GetTestIdFromContext(ctx), time.Since(timerStart)))
 	} else {
 		logger.Error(ctx, err, "Error")
-		r.resultCollector.AddTestResult(collector.NewFailedTest(utils.GetTestId(ctx), time.Since(timerStart), err))
+		r.resultCollector.AddTestResult(collector.NewFailedTest(utils.GetTestIdFromContext(ctx), time.Since(timerStart), err))
 	}
 
 	return nil

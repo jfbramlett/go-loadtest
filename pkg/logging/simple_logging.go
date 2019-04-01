@@ -53,15 +53,10 @@ func (l* simpleLogger) toMsg(fmtString string, params ...interface{}) string {
 
 func (l *simpleLogger) log(level string, ctx context.Context, msg string) {
 	ts := time.Now().Format("2006-01-02 15:04:05")
-	fmtMsg := fmt.Sprintf("%s [%s] [%s] [%s] %s", ts, l.cls, utils.GetTestId(ctx), level, msg)
+	fmtMsg := fmt.Sprintf("%s [%s] [%s] [%s] %s", ts, l.cls, utils.GetTestIdFromContext(ctx), level, msg)
 	fmt.Println(fmtMsg)
 }
 
-func (l *simpleLogger) NewLogger(cls interface{}) Logger {
-	return NewSimpleLogger(cls)
-}
-
-
-func NewSimpleLogger(cls interface{}) Logger {
-	return &simpleLogger{cls: fmt.Sprintf("%T", cls)}
+func NewSimpleLogger(loggerFor string) Logger {
+	return &simpleLogger{cls: loggerFor}
 }

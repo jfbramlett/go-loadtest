@@ -1,11 +1,12 @@
 package rampstrategy
 
-import (
-	"github.com/jfbramlett/go-loadtest/pkg/collector"
-	"github.com/jfbramlett/go-loadtest/pkg/testwrapper"
-	"github.com/jfbramlett/go-loadtest/pkg/runstrategy"
-)
+import "time"
 
-type RampUpStrategy interface {
-	CreateRunStrategy(testId string, factory runstrategy.RunStrategyFactory, collector collector.ResultCollector, runFunc testwrapper.RunFunc) runstrategy.RunStrategy
+type StartDelay struct {
+	InitialDelay	time.Duration
+	UsersToStart	int
+}
+
+type RampStrategy interface {
+	GetStartDelay(testLength time.Duration, rampToUsers int) []StartDelay
 }

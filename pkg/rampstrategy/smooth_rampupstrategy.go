@@ -1,43 +1,35 @@
 package rampstrategy
 
-import (
-	"github.com/jfbramlett/go-loadtest/pkg/collector"
-	"github.com/jfbramlett/go-loadtest/pkg/testwrapper"
-	"github.com/jfbramlett/go-loadtest/pkg/runstrategy"
-	"github.com/jfbramlett/go-loadtest/pkg/utils"
-)
+import "time"
+
+const MaxRamps = 10
 
 type smoothRampUpStrategy struct {
-	interval				int
-	currentDelay			int
-	usersPerInterval		int
-	currentIntervalUsers	int
+	rampPeriodPct float64
 }
 
 
-func (s *smoothRampUpStrategy) CreateRunStrategy(testId string, factory runstrategy.RunStrategyFactory, collector collector.ResultCollector, runFunc testwrapper.RunFunc) runstrategy.RunStrategy {
-	rs := factory.GetRunStrategy(testId, s.currentDelay, runFunc, collector)
-	s.currentIntervalUsers++
-	if s.currentIntervalUsers == s.usersPerInterval {
-		s.currentDelay = s.currentDelay + s.interval
-		s.currentIntervalUsers = 0
+func (s *smoothRampUpStrategy) GetStartDelay(testLength time.Duration, maxUsers int) []StartDelay {
+	rampPeriodSec := int64(testLength.Seconds() * s.rampPeriodPct)
+
+	rampIntervals := rampPeriodSec / MaxRamps
+
+	usersPerRamp := maxUsers / MaxRamps
+	lastRamp := maxUsers % MaxRamps
+
+	strategies := make([]StartDelay, 0)
+	wait := int64(0)
+	for i := 0; i < MaxRamps; i++ {
+		strategies = append(strategies, StartDelay{InitialDelay: time.Duration(wait)*time.Second, UsersToStart: usersPerRamp})
+		wait = wait + rampIntervals
+	}
+	if lastRamp > 0 {
+		strategies = append(strategies, StartDelay{InitialDelay: time.Duration(wait)*time.Second, UsersToStart: lastRamp})
 	}
 
-	return rs
+	return strategies
 }
 
-
-
-func NewSmoothRampUpStrategy(rampUpPeriod int, maxUsers int, minDelay int) RampUpStrategy {
-	maxRamps := rampUpPeriod / minDelay
-	minRamps := maxRamps/2
-
-	ramps := utils.RandomIntBetween(minRamps, maxRamps)
-	rampInterval := rampUpPeriod / ramps
-
-	usersPerInterval := maxUsers / ramps
-
-	return &smoothRampUpStrategy{
-		interval: rampInterval,
-		usersPerInterval: usersPerInterval}
+func NewSmoothRampUpStrategy(rampPeriod float64) RampStrategy {
+	return &smoothRampUpStrategy{rampPeriodPct: rampPeriod}
 }

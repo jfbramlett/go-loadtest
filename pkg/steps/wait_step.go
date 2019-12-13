@@ -9,17 +9,25 @@ import (
 // Step that pauses execution for a given duration
 type waitStep struct {
 	waitTime	time.Duration
+	repeat		bool
+	run			bool
 }
 
 func (w *waitStep) Execute(ctx context.Context) error {
-	time.Sleep(w.waitTime)
+	if w.run {
+		time.Sleep(w.waitTime)
+		w.run = w.repeat
+	}
 	return nil
 }
 
 func NewWaitStep(waitTime time.Duration) Step {
-	return &waitStep{waitTime: waitTime}
+	return &waitStep{waitTime: waitTime, repeat: true, run: true}
 }
 
+func NewInitialWaitStep(waitTime time.Duration) Step {
+	return &waitStep{waitTime: waitTime, repeat: false, run: true}
+}
 
 // step that does a random wait
 type randomWaitStep struct {

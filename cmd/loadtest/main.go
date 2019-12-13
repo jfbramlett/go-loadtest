@@ -8,6 +8,7 @@ import (
     "github.com/jfbramlett/go-loadtest/pkg/logging"
     "github.com/jfbramlett/go-loadtest/pkg/metrics"
     "github.com/jfbramlett/go-loadtest/pkg/naming"
+    "github.com/jfbramlett/go-loadtest/pkg/rampstrategy"
     "github.com/jfbramlett/go-loadtest/pkg/reports"
     "github.com/jfbramlett/go-loadtest/pkg/utils"
     "math/rand"
@@ -20,12 +21,12 @@ func main() {
 
     rand.Seed(time.Now().UTC().UnixNano())
 
-    concurrentUsers := 5
-    testLengthSec := 60
+    concurrentUsers := 10
+    testLengthSec := 300
     testInterval := 2
     //loadProfileBuilder := loadprofile.NewStaticProfileBuilder(concurrentUsers, testLengthSec, testInterval)
     //loadProfileBuilder := loadprofile.NewRandomProfileBuilder(concurrentUsers, testLengthSec)
-    loadProfileBuilder := loadprofile.NewPartialRandomProfileBuilder(concurrentUsers, testLengthSec, testInterval)
+    loadProfileBuilder := loadprofile.NewPartialRandomProfileBuilder(concurrentUsers, testLengthSec, testInterval, rampstrategy.NewSmoothRampUpStrategy(.10))
 
 
     resultCollector := collector.NewInMemoryRunCollector()

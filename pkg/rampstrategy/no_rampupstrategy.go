@@ -1,24 +1,15 @@
 package rampstrategy
 
-import (
-	"github.com/jfbramlett/go-loadtest/pkg/collector"
-	"github.com/jfbramlett/go-loadtest/pkg/testwrapper"
-	"github.com/jfbramlett/go-loadtest/pkg/runstrategy"
-)
+import "time"
 
 type noRampUpStrategy struct {
-	interval				int
-	currentDelay			int
-	usersPerInterval		int
-	currentIntervalUsers	int
 }
 
 
-func (s *noRampUpStrategy) CreateRunStrategy(testId string, factory runstrategy.RunStrategyFactory, collector collector.ResultCollector, runFunc testwrapper.RunFunc) runstrategy.RunStrategy {
-	return factory.GetRunStrategy(testId, 0, runFunc, collector)
+func (n *noRampUpStrategy) GetStartDelay(testLength time.Duration, maxUsers int) []StartDelay {
+	return []StartDelay{{InitialDelay: time.Duration(0), UsersToStart: maxUsers}}
 }
 
-
-func NewNoRampUpStrategy() RampUpStrategy {
+func NewNoRampUpStrategy() RampStrategy {
 	return &noRampUpStrategy{}
 }

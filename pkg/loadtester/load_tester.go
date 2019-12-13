@@ -35,7 +35,7 @@ func (l *LoadTester) Run(ctx context.Context, loadProfileBuilder loadprofile.Loa
 
 
 func (l *LoadTester) runWrapper(load loadprofile.LoadProfile, ctx context.Context, wg *sync.WaitGroup) {
+	defer wg.Done()
 	load.Run(ctx)
-	wg.Done()
 }
 

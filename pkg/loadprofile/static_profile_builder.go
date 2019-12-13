@@ -8,6 +8,7 @@ import (
 	"time"
 )
 
+// staticProfileBuilder runs each test with a fixed wait between executions
 type staticProfileBuilder struct {
 	concurrentUsers			int
 	testLength				time.Duration

@@ -9,6 +9,7 @@ import (
 	"time"
 )
 
+// randomProfileBuilder runs each test using a random wait period between executions
 type randomProfileBuilder struct {
 	concurrentUsers			int
 	testLength				time.Duration

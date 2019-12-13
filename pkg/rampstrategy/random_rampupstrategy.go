@@ -7,12 +7,13 @@ import (
 
 const RampUsersPct = .10
 
-type randomRampUpStrategy struct {
+// randomRampStrategy starts sets of users with random delays
+type randomRampStrategy struct {
 	rampPeriodPct float64
 }
 
 
-func (r *randomRampUpStrategy) GetStartDelay(testLength time.Duration, maxUsers int) []StartDelay {
+func (r *randomRampStrategy) GetStartDelay(testLength time.Duration, maxUsers int) []StartDelay {
 	rampPeriod := time.Duration(int64(testLength.Seconds() * r.rampPeriodPct)) * time.Second
 
 	usersPerRamp := int(float32(maxUsers) * RampUsersPct)
@@ -32,5 +33,5 @@ func (r *randomRampUpStrategy) GetStartDelay(testLength time.Duration, maxUsers 
 }
 
 func NewRandomRampUpStrategy(rampPeriod float64) RampStrategy {
-	return &randomRampUpStrategy{rampPeriodPct: rampPeriod}
+	return &randomRampStrategy{rampPeriodPct: rampPeriod}
 }

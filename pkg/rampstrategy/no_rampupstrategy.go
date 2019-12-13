@@ -2,14 +2,15 @@ package rampstrategy
 
 import "time"
 
-type noRampUpStrategy struct {
+// noRampStrategy starts all users together without any delay
+type noRampStrategy struct {
 }
 
 
-func (n *noRampUpStrategy) GetStartDelay(testLength time.Duration, maxUsers int) []StartDelay {
+func (n *noRampStrategy) GetStartDelay(testLength time.Duration, maxUsers int) []StartDelay {
 	return []StartDelay{{InitialDelay: time.Duration(0), UsersToStart: maxUsers}}
 }
 
 func NewNoRampUpStrategy() RampStrategy {
-	return &noRampUpStrategy{}
+	return &noRampStrategy{}
 }

@@ -9,6 +9,8 @@ import (
 	"time"
 )
 
+// partialRandomProfileBuilder runs each test using a random wait period between executions for some set of users
+// and a fixed interval for others
 type partialRandomProfileBuilder struct {
 	concurrentUsers			int
 	testLength				time.Duration

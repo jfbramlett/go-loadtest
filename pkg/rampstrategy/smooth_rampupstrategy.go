@@ -4,6 +4,7 @@ import "time"
 
 const MaxRamps = 10
 
+// smoothRampUpStrategy starts sets of users at fixed intervals
 type smoothRampUpStrategy struct {
 	rampPeriodPct float64
 }

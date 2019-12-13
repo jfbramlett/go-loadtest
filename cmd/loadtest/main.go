@@ -2,15 +2,12 @@ package main
 
 import (
     "context"
-    "github.com/jfbramlett/go-loadtest/pkg/collector"
     "github.com/jfbramlett/go-loadtest/pkg/loadprofile"
     "github.com/jfbramlett/go-loadtest/pkg/loadtester"
     "github.com/jfbramlett/go-loadtest/pkg/logging"
     "github.com/jfbramlett/go-loadtest/pkg/metrics"
-    "github.com/jfbramlett/go-loadtest/pkg/naming"
     "github.com/jfbramlett/go-loadtest/pkg/rampstrategy"
     "github.com/jfbramlett/go-loadtest/pkg/reports"
-    "github.com/jfbramlett/go-loadtest/pkg/utils"
     "math/rand"
     "time"
 )
@@ -21,23 +18,19 @@ func main() {
 
     rand.Seed(time.Now().UTC().UnixNano())
 
-    concurrentUsers := 10
-    testLengthSec := 300
-    testInterval := 2
-    //loadProfileBuilder := loadprofile.NewStaticProfileBuilder(concurrentUsers, testLengthSec, testInterval)
-    //loadProfileBuilder := loadprofile.NewRandomProfileBuilder(concurrentUsers, testLengthSec)
-    loadProfileBuilder := loadprofile.NewPartialRandomProfileBuilder(concurrentUsers, testLengthSec, testInterval, rampstrategy.NewSmoothRampUpStrategy(.10))
+    concurrentUsers := 100
+    testLength := 300 * time.Second
+    testInterval := 2*time.Second
 
+    runner := loadtester.NewLoadTester(concurrentUsers, testLength, testInterval, loadprofile.StaticProfile, rampstrategy.Random)
+    //runner := loadtester.NewLoadTester(concurrentUsers, testLength, testInterval, loadprofile.RandomProfile, rampstrategy.Smooth)
+    //runner := loadtester.NewLoadTester(concurrentUsers, testLength, testInterval, loadprofile.PartialRandomProfile, rampstrategy.Smooth)
 
-    resultCollector := collector.NewInMemoryRunCollector()
-
-    test := loadtester.LoadTester{}
-
-    test.Run(context.Background(), loadProfileBuilder, &Tester{}, naming.NewSimpleTestNamer(), resultCollector)
+    collector := runner.Run(context.Background(), &Tester{})
 
     reporter := reports.NewConsoleReportStrategy(time.Duration(500) * time.Millisecond, time.Duration(750) * time.Millisecond)
 
-    reporter.Report(context.Background(), concurrentUsers, time.Duration(testLengthSec) * time.Second, resultCollector)
+    reporter.Report(context.Background(), concurrentUsers, testLength, collector)
 }
 
 
@@ -47,6 +40,5 @@ type Tester struct {
 func (t *Tester) Run(ctx context.Context) error {
     logger, ctx := logging.GetLoggerFromContext(ctx, t)
     logger.Info(ctx, "Blah blah blah")
-    time.Sleep(time.Duration(utils.RandomIntBetween(0, 5)) * time.Second)
     return nil
 }

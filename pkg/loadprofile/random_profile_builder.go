@@ -13,6 +13,7 @@ import (
 type randomProfileBuilder struct {
 	concurrentUsers			int
 	testLength				time.Duration
+	maxInterval				time.Duration
 	rampUpStrategy			rampstrategy.RampStrategy
 }
 
@@ -27,7 +28,7 @@ func (s *randomProfileBuilder) GetLoadProfiles(runFunc testwrapper.Test, resultC
 	for _, sd := range startDelays {
 		initialDelayStep := steps.NewInitialWaitStep(sd.Delay)
 
-		randWaitStep := steps.NewRandomWaitStep(time.Duration(0), time.Duration(int(s.testLength/time.Millisecond/4))*time.Millisecond, utils.RandomSecondDuration)
+		randWaitStep := steps.NewRandomWaitStep(time.Duration(0), s.maxInterval, utils.RandomSecondDuration)
 
 		runProfile := []steps.Step{initialDelayStep, runFuncStep, randWaitStep}
 		for i := 0; i < sd.Users; i++ {
@@ -39,10 +40,10 @@ func (s *randomProfileBuilder) GetLoadProfiles(runFunc testwrapper.Test, resultC
 }
 
 
-func NewRandomProfileBuilder(concurrentUsers int, testLengthSec int, rampUpStrategy  rampstrategy.RampStrategy) LoadProfileBuilder {
-	testLength := time.Duration(testLengthSec)*time.Second
+func NewRandomProfileBuilder(concurrentUsers int, testLength time.Duration, maxInterval time.Duration, rampUpStrategy rampstrategy.RampStrategy) LoadProfileBuilder {
 	return &randomProfileBuilder{concurrentUsers: concurrentUsers,
 		testLength: testLength,
+		maxInterval: maxInterval,
 		rampUpStrategy: rampUpStrategy,
 	}
 }

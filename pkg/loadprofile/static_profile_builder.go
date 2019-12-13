@@ -38,12 +38,10 @@ func (s *staticProfileBuilder) GetLoadProfiles(runFunc testwrapper.Test, resultC
 }
 
 
-func NewStaticProfileBuilder(concurrentUsers int, testLengthSec int, intervalSec int, rampUpStrategy  rampstrategy.RampStrategy) LoadProfileBuilder {
-	testLength := time.Duration(testLengthSec)*time.Second
-	testInterval := time.Duration(intervalSec)*time.Second
+func NewStaticProfileBuilder(concurrentUsers int, testLength time.Duration, interval time.Duration, rampUpStrategy  rampstrategy.RampStrategy) LoadProfileBuilder {
 	return &staticProfileBuilder{concurrentUsers: concurrentUsers,
 		testLength: testLength,
-		interval: testInterval,
+		interval: interval,
 		rampUpStrategy: rampUpStrategy,
 		}
 }

@@ -34,7 +34,7 @@ func (p *partialRandomProfileBuilder) GetLoadProfiles(runFunc testwrapper.Test, 
 		if i % 2 == 0 {
 			waitStep = steps.NewWaitStep(p.interval)
 		 } else {
-			waitStep = steps.NewRandomWaitStep(time.Duration(0), time.Duration(int(p.testLength/time.Millisecond/4))*time.Millisecond, utils.RandomSecondDuration)
+			waitStep = steps.NewRandomWaitStep(time.Duration(0), p.interval, utils.RandomSecondDuration)
 		}
 
 		runProfile := []steps.Step{initialDelayStep, runFuncStep, waitStep}
@@ -47,12 +47,10 @@ func (p *partialRandomProfileBuilder) GetLoadProfiles(runFunc testwrapper.Test, 
 }
 
 
-func NewPartialRandomProfileBuilder(concurrentUsers int, testLengthSec int, intervalSec int, rampstrategy rampstrategy.RampStrategy) LoadProfileBuilder {
-	testLength := time.Duration(testLengthSec)*time.Second
-	testInterval := time.Duration(intervalSec)*time.Second
+func NewPartialRandomProfileBuilder(concurrentUsers int, testLength time.Duration, interval time.Duration, rampstrategy rampstrategy.RampStrategy) LoadProfileBuilder {
 	return &partialRandomProfileBuilder{concurrentUsers: concurrentUsers,
 		testLength: testLength,
-		interval: testInterval,
+		interval: interval,
 		rampUpStrategy: rampstrategy,
 	}
 }

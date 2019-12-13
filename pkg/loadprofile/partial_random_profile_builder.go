@@ -25,10 +25,10 @@ func (p *partialRandomProfileBuilder) GetLoadProfiles(runFunc testwrapper.Test, 
 	runFuncStep := steps.NewRunFuncStep(runFunc, resultCollector)
 
 
-	startDelays := p.rampUpStrategy.GetStartDelay(p.testLength, p.concurrentUsers)
+	startDelays := p.rampUpStrategy.GetStartProfile(p.testLength, p.concurrentUsers)
 
 	for i, sd := range startDelays {
-		initialDelayStep := steps.NewInitialWaitStep(sd.InitialDelay)
+		initialDelayStep := steps.NewInitialWaitStep(sd.Delay)
 
 		var waitStep steps.Step
 		if i % 2 == 0 {
@@ -38,8 +38,8 @@ func (p *partialRandomProfileBuilder) GetLoadProfiles(runFunc testwrapper.Test, 
 		}
 
 		runProfile := []steps.Step{initialDelayStep, runFuncStep, waitStep}
-		for i := 0; i < sd.UsersToStart; i++ {
-			runners = append(runners, NewLoadProfile(runProfile, p.testLength - sd.InitialDelay, false))
+		for i := 0; i < sd.Users; i++ {
+			runners = append(runners, NewLoadProfile(runProfile, p.testLength - sd.Delay, false))
 		}
 	}
 

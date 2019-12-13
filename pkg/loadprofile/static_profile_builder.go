@@ -22,15 +22,15 @@ func (s *staticProfileBuilder) GetLoadProfiles(runFunc testwrapper.Test, resultC
 
 	runFuncStep := steps.NewRunFuncStep(runFunc, resultCollector)
 
-	startDelays := s.rampUpStrategy.GetStartDelay(s.testLength, s.concurrentUsers)
+	startDelays := s.rampUpStrategy.GetStartProfile(s.testLength, s.concurrentUsers)
 
 	for _, sd := range startDelays {
-		initialDelayStep := steps.NewInitialWaitStep(sd.InitialDelay)
+		initialDelayStep := steps.NewInitialWaitStep(sd.Delay)
 		waitBetweenRuns := steps.NewWaitStep(s.interval)
 
 		runProfile := []steps.Step{initialDelayStep, runFuncStep, waitBetweenRuns}
-		for i := 0; i < sd.UsersToStart; i++ {
-			runners = append(runners, NewLoadProfile(runProfile, s.testLength - sd.InitialDelay, false))
+		for i := 0; i < sd.Users; i++ {
+			runners = append(runners, NewLoadProfile(runProfile, s.testLength - sd.Delay, false))
 		}
 	}
 

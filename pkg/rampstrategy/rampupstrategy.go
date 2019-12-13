@@ -2,11 +2,11 @@ package rampstrategy
 
 import "time"
 
-type StartDelay struct {
-	InitialDelay	time.Duration
-	UsersToStart	int
+type StartProfile struct {
+	Delay time.Duration
+	Users int
 }
 
 type RampStrategy interface {
-	GetStartDelay(testLength time.Duration, rampToUsers int) []StartDelay
+	GetStartProfile(testLength time.Duration, rampToUsers int) []StartProfile
 }

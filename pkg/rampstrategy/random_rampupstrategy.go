@@ -13,20 +13,20 @@ type randomRampStrategy struct {
 }
 
 
-func (r *randomRampStrategy) GetStartDelay(testLength time.Duration, maxUsers int) []StartDelay {
+func (r *randomRampStrategy) GetStartProfile(testLength time.Duration, maxUsers int) []StartProfile {
 	rampPeriod := time.Duration(int64(testLength.Seconds() * r.rampPeriodPct)) * time.Second
 
 	usersPerRamp := int(float32(maxUsers) * RampUsersPct)
 
-	strategies := make([]StartDelay, 0)
+	strategies := make([]StartProfile, 0)
 
 	var assignedUsers int
 	for assignedUsers = 0; assignedUsers < maxUsers; assignedUsers += usersPerRamp {
-		strategies = append(strategies, StartDelay{InitialDelay: utils.RandomSecondDuration(time.Duration(0), rampPeriod), UsersToStart: usersPerRamp})
+		strategies = append(strategies, StartProfile{Delay: utils.RandomSecondDuration(time.Duration(0), rampPeriod), Users: usersPerRamp})
 	}
 
 	if maxUsers - assignedUsers > 0 {
-		strategies = append(strategies, StartDelay{InitialDelay: utils.RandomSecondDuration(time.Duration(0), rampPeriod), UsersToStart: maxUsers - assignedUsers})
+		strategies = append(strategies, StartProfile{Delay: utils.RandomSecondDuration(time.Duration(0), rampPeriod), Users: maxUsers - assignedUsers})
 	}
 
 	return strategies

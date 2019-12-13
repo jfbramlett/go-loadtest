@@ -20,18 +20,18 @@ type randomProfileBuilder struct {
 func (s *randomProfileBuilder) GetLoadProfiles(runFunc testwrapper.Test, resultCollector collector.ResultCollector) []LoadProfile {
 	runners := make([]LoadProfile, 0)
 
-	startDelays := s.rampUpStrategy.GetStartDelay(s.testLength, s.concurrentUsers)
+	startDelays := s.rampUpStrategy.GetStartProfile(s.testLength, s.concurrentUsers)
 
 	runFuncStep := steps.NewRunFuncStep(runFunc, resultCollector)
 
 	for _, sd := range startDelays {
-		initialDelayStep := steps.NewInitialWaitStep(sd.InitialDelay)
+		initialDelayStep := steps.NewInitialWaitStep(sd.Delay)
 
 		randWaitStep := steps.NewRandomWaitStep(time.Duration(0), time.Duration(int(s.testLength/time.Millisecond/4))*time.Millisecond, utils.RandomSecondDuration)
 
 		runProfile := []steps.Step{initialDelayStep, runFuncStep, randWaitStep}
-		for i := 0; i < sd.UsersToStart; i++ {
-			runners = append(runners, NewLoadProfile(runProfile, s.testLength - sd.InitialDelay, false))
+		for i := 0; i < sd.Users; i++ {
+			runners = append(runners, NewLoadProfile(runProfile, s.testLength - sd.Delay, false))
 		}
 	}
 

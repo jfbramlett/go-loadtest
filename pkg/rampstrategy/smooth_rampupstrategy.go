@@ -10,7 +10,7 @@ type smoothRampUpStrategy struct {
 }
 
 
-func (s *smoothRampUpStrategy) GetStartDelay(testLength time.Duration, maxUsers int) []StartDelay {
+func (s *smoothRampUpStrategy) GetStartProfile(testLength time.Duration, maxUsers int) []StartProfile {
 	rampPeriodSec := int64(testLength.Seconds() * s.rampPeriodPct)
 
 	rampIntervals := rampPeriodSec / MaxRamps
@@ -18,14 +18,14 @@ func (s *smoothRampUpStrategy) GetStartDelay(testLength time.Duration, maxUsers 
 	usersPerRamp := maxUsers / MaxRamps
 	lastRamp := maxUsers % MaxRamps
 
-	strategies := make([]StartDelay, 0)
+	strategies := make([]StartProfile, 0)
 	wait := int64(0)
 	for i := 0; i < MaxRamps; i++ {
-		strategies = append(strategies, StartDelay{InitialDelay: time.Duration(wait)*time.Second, UsersToStart: usersPerRamp})
+		strategies = append(strategies, StartProfile{Delay: time.Duration(wait)*time.Second, Users: usersPerRamp})
 		wait = wait + rampIntervals
 	}
 	if lastRamp > 0 {
-		strategies = append(strategies, StartDelay{InitialDelay: time.Duration(wait)*time.Second, UsersToStart: lastRamp})
+		strategies = append(strategies, StartProfile{Delay: time.Duration(wait)*time.Second, Users: lastRamp})
 	}
 
 	return strategies

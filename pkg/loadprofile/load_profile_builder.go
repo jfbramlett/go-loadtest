@@ -1,6 +1,7 @@
 package loadprofile
 
 import (
+	"context"
 	"github.com/jfbramlett/go-loadtest/pkg/collector"
 	"github.com/jfbramlett/go-loadtest/pkg/rampstrategy"
 	"github.com/jfbramlett/go-loadtest/pkg/testwrapper"
@@ -17,7 +18,7 @@ const (
 
 
 type LoadProfileBuilder interface {
-	GetLoadProfiles(runFunc testwrapper.Test, resultCollector collector.ResultCollector) []LoadProfile
+	GetLoadProfiles(ctx context.Context, runFunc testwrapper.Test, resultCollector collector.ResultCollector) []LoadProfile
 }
 
 

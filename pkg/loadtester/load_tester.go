@@ -31,7 +31,7 @@ func (l *DefaultLoadTester) Run(ctx context.Context, runFunc testwrapper.Test) c
 	l.resultCollector.Start()
 
 	wg := sync.WaitGroup{}
-	for i, r := range l.loadProfileBuilder.GetLoadProfiles(runFunc, l.resultCollector) {
+	for i, r := range l.loadProfileBuilder.GetLoadProfiles(ctx, runFunc, l.resultCollector) {
 		wg.Add(1)
 		ctx := utils.SetTestIdInContext(ctx, l.namer.GetName(i))
 		go l.runWrapper(r, ctx, &wg)

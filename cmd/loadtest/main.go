@@ -22,7 +22,7 @@ func main() {
     testLength := 300 * time.Second
     testInterval := 2*time.Second
 
-    runner := loadtester.NewLoadTester(concurrentUsers, testLength, testInterval, loadprofile.StaticProfile, rampstrategy.Random)
+    runner := loadtester.NewLoadTester(concurrentUsers, testLength, testInterval, loadprofile.StaticProfile, rampstrategy.Smooth)
     //runner := loadtester.NewLoadTester(concurrentUsers, testLength, testInterval, loadprofile.RandomProfile, rampstrategy.Smooth)
     //runner := loadtester.NewLoadTester(concurrentUsers, testLength, testInterval, loadprofile.PartialRandomProfile, rampstrategy.Smooth)
 

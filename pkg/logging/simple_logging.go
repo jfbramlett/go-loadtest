@@ -17,7 +17,7 @@ func (l *simpleLogger) Info(ctx context.Context, msg string) {
 }
 
 func (l *simpleLogger) Infof(ctx context.Context, fmtString string, params ...interface{}) {
-	l.log("INFO", ctx, l.toMsg(fmtString, params))
+	l.log("INFO", ctx, l.toMsg(fmtString, params...))
 }
 
 func (l *simpleLogger) Debug(ctx context.Context, msg string) {
@@ -25,7 +25,7 @@ func (l *simpleLogger) Debug(ctx context.Context, msg string) {
 }
 
 func (l *simpleLogger) Debugf(ctx context.Context, fmtString string, params ...interface{}) {
-	l.log("DEBUG", ctx, l.toMsg(fmtString, params))
+	l.log("DEBUG", ctx, l.toMsg(fmtString, params...))
 }
 
 
@@ -34,7 +34,7 @@ func (l *simpleLogger) Warn(ctx context.Context, msg string) {
 }
 
 func (l *simpleLogger) Warnf(ctx context.Context, fmtString string, params ...interface{}) {
-	l.log("WARN", ctx, l.toMsg(fmtString, params))
+	l.log("WARN", ctx, l.toMsg(fmtString, params...))
 }
 
 
@@ -48,7 +48,7 @@ func (l *simpleLogger) Errorf(ctx context.Context, err error, fmtString string, 
 }
 
 func (l* simpleLogger) toMsg(fmtString string, params ...interface{}) string {
-	return fmt.Sprintf(fmtString, params)
+	return fmt.Sprintf(fmtString, params...)
 }
 
 func (l *simpleLogger) log(level string, ctx context.Context, msg string) {

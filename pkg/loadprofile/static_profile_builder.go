@@ -1,7 +1,9 @@
 package loadprofile
 
 import (
+	"context"
 	"github.com/jfbramlett/go-loadtest/pkg/collector"
+	"github.com/jfbramlett/go-loadtest/pkg/logging"
 	"github.com/jfbramlett/go-loadtest/pkg/rampstrategy"
 	"github.com/jfbramlett/go-loadtest/pkg/testwrapper"
 	"github.com/jfbramlett/go-loadtest/pkg/steps"
@@ -17,14 +19,16 @@ type staticProfileBuilder struct {
 }
 
 
-func (s *staticProfileBuilder) GetLoadProfiles(runFunc testwrapper.Test, resultCollector collector.ResultCollector) []LoadProfile {
+func (s *staticProfileBuilder) GetLoadProfiles(ctx context.Context, runFunc testwrapper.Test, resultCollector collector.ResultCollector) []LoadProfile {
 	runners := make([]LoadProfile, 0)
+	logger, ctx := logging.GetLoggerFromContext(ctx, s)
 
 	runFuncStep := steps.NewRunFuncStep(runFunc, resultCollector)
 
-	startDelays := s.rampUpStrategy.GetStartProfile(s.testLength, s.concurrentUsers)
+	startDelays := s.rampUpStrategy.GetStartProfile(ctx, s.testLength, s.concurrentUsers)
 
 	for _, sd := range startDelays {
+		logger.Infof(ctx,"Creating start set of %d users with initial delay of %v with execution interval %v", sd.Users, sd.Delay, s.interval)
 		initialDelayStep := steps.NewInitialWaitStep(sd.Delay)
 		waitBetweenRuns := steps.NewWaitStep(s.interval)
 

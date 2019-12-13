@@ -1,13 +1,15 @@
 package naming
 
-import "strconv"
+import (
+	"fmt"
+)
 
 type simpleTestNamer struct {
 }
 
 
 func (s *simpleTestNamer) GetName(testNumber int) string {
-	return strconv.FormatInt(int64(testNumber), 10)
+	return fmt.Sprintf("%04d", testNumber)
 }
 
 

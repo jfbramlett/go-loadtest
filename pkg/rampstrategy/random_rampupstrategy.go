@@ -1,6 +1,7 @@
 package rampstrategy
 
 import (
+	"context"
 	"github.com/jfbramlett/go-loadtest/pkg/utils"
 	"time"
 )
@@ -13,7 +14,7 @@ type randomRampStrategy struct {
 }
 
 
-func (r *randomRampStrategy) GetStartProfile(testLength time.Duration, maxUsers int) []StartProfile {
+func (r *randomRampStrategy) GetStartProfile(ctx context.Context, testLength time.Duration, maxUsers int) []StartProfile {
 	rampPeriod := time.Duration(int64(testLength.Seconds() * r.rampPeriodPct)) * time.Second
 
 	usersPerRamp := int(float32(maxUsers) * RampUsersPct)

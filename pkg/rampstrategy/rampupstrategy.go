@@ -1,6 +1,9 @@
 package rampstrategy
 
-import "time"
+import (
+	"context"
+	"time"
+)
 
 type RampStrategyType int
 
@@ -19,7 +22,7 @@ type StartProfile struct {
 }
 
 type RampStrategy interface {
-	GetStartProfile(testLength time.Duration, rampToUsers int) []StartProfile
+	GetStartProfile(ctx context.Context, testLength time.Duration, rampToUsers int) []StartProfile
 }
 
 

@@ -1,6 +1,9 @@
 package rampstrategy
 
-import "time"
+import (
+	"context"
+	"time"
+)
 
 const MaxRamps = 10
 
@@ -10,7 +13,7 @@ type smoothRampUpStrategy struct {
 }
 
 
-func (s *smoothRampUpStrategy) GetStartProfile(testLength time.Duration, maxUsers int) []StartProfile {
+func (s *smoothRampUpStrategy) GetStartProfile(ctx context.Context, testLength time.Duration, maxUsers int) []StartProfile {
 	rampPeriodSec := int64(testLength.Seconds() * s.rampPeriodPct)
 
 	rampIntervals := rampPeriodSec / MaxRamps

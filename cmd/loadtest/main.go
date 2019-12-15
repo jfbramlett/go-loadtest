@@ -28,7 +28,7 @@ func main() {
 
     collector := runner.Run(context.Background(), &Tester{})
 
-    reporter := reports.NewConsoleReportStrategy(time.Duration(500) * time.Millisecond, time.Duration(750) * time.Millisecond)
+    reporter := reports.NewConsoleReportStrategy(500 * time.Millisecond, 750 * time.Millisecond)
 
     reporter.Report(context.Background(), concurrentUsers, testLength, collector)
 }

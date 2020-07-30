@@ -1,31 +1,19 @@
-# --template:common-preamble
-ARG BUILDER_IMAGE
-ARG RUNTIME_IMAGE
-FROM $BUILDER_IMAGE AS builder
+FROM golang:1.14-alpine3.11 as base
 
-# --template:key-provisioning-for-git-pulls-during-build
-COPY docker_key /root/.ssh/id_rsa
-RUN chmod 0400 /root/.ssh/id_rsa && \
-  echo "Host *\n    StrictHostKeyChecking no" > /root/.ssh/config && \
-    git config --global url."ssh://git@github.com/".insteadOf "https://github.com/"
+FROM base as build
+RUN apk add --update make
 
-# --template:build-go-bus-microservice<REPO>
-WORKDIR /go/src/envoy-sidecar
-COPY go.mod Makefile . ./
-RUN PROTOBUF=false make  go-unit-test go-cmds
+ENV GO111MODULE=on
+COPY . /root/src/go/github.com/ninth-wave/nwp-load-tester
+WORKDIR /root/src/go/github.com/ninth-wave/nwp-load-tester
+RUN make build
 
-# --template:run-time-packaging-compliance
-FROM $RUNTIME_IMAGE
-ARG DEPLOYMENT
-LABEL "Deployment"="$DEPLOYMENT"
-ARG GIT_COMMIT
-LABEL "git_commit"="$GIT_COMMIT"
-ARG CI_INFO
-LABEL "ci_info"="$CI_INFO"
 
-# --inject:component-level-run-time-provisioning
-RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates
+FROM alpine:3.11 as runtime
+RUN apk update && apk upgrade && apk add bash && apk add curl && apk add perl
 
-# --template:run-time-entry-point<REPO,ENTRYPOINT>
-COPY --from=builder /go/src/envoy-sidecar/bin/envoy-sidecar /usr/local/bin/
-ENTRYPOINT ["/usr/local/bin/envoy-sidecar"]
+COPY --from=build /root/src/go/github.com/ninth-wave/nwp-load-tester/bin/load-tester /usr/local/bin
+
+WORKDIR /usr/local/bin
+
+ENTRYPOINT ["/usr/local/bin/load-tester"]

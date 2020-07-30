@@ -16,6 +16,19 @@ const (
 )
 
 
+func GetRampStrategyType(v int) RampStrategyType {
+	switch v {
+	case 0:
+		return Noop
+	case 1:
+		return Smooth
+	case 2:
+		return Random
+	}
+
+	return Noop
+}
+
 type StartProfile struct {
 	Delay time.Duration
 	Users int

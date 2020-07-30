@@ -1,0 +1,52 @@
+{
+  "auth" : {
+    "user": "asyst",
+    "pwd": "Asyst1234#",
+    "domain": "gthm9w-dev.auth.us-east-1.amazoncognito.com",
+    "client": "289il3edsjg3hfi3gr7skieuqk",
+    "secret": "k08qacebbh7ok18pk5nkdlarpi09rlno2ahsasi6kij26ommus5",
+    "scope": "aws.cognito.signin.user.admin%20dda10/FinancialInformation%20fdx30/FinancialInformation",
+    "verbose": "nodebug",
+    "clientId": "DEMO0282db6dd5a24136bfbd1ab12125f29a",
+    "fid": "12879",
+    "apiKey": "kL2PoCbelz4wLUAgIrZBy4lONMEs7JsR41r4HdkS"
+  },
+  "endpoints": [
+    {
+      "name": "accountlist",
+      "method": "GET",
+      "url": "https://gthm9w-dev.idz.finance-api.services/fdx-3.0/accountlist"
+    },
+    {
+      "name": "get-account",
+      "method": "GET",
+      "url": "https://gthm9w-dev.idz.finance-api.services/fdx-3.0/account/0002249950"
+    },
+    {
+      "name": "post-account",
+      "method": "POST",
+      "url": "https://gthm9w-dev.idz.finance-api.services/fdx-3.0/account",
+      "formbody": {
+        "accountId": "0002249950"
+      },
+      "headers": {
+        "Content-Type": "application/x-www-form-urlencoded"
+      }
+    },
+    {
+      "name": "transactions",
+      "method": "GET",
+      "url": "https://gthm9w-dev.idz.finance-api.services/fdx-3.0/account/0002249950/transactions"
+    }
+  ],
+  "runtype": "random",
+  "name": "dev-perf-test",
+  "traceKey": "DDA-InteractionId",
+  "headers": {
+    "Accept-Charset": "UTF-8",
+    "Accept-Encoding": "identity",
+    "Accept": "application/json",
+    "Accept-Charset": "UTF-8",
+    "Content-Type": "application/json"
+  }
+}

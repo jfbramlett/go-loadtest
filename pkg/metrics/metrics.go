@@ -1,22 +1,35 @@
 package metrics
 
-import (
-	"github.com/prometheus/client_golang/prometheus"
-	"github.com/prometheus/client_golang/prometheus/promauto"
-	"github.com/prometheus/client_golang/prometheus/promhttp"
-	"net/http"
+const (
+	nameKey = "name"
+	valueKey = "value"
+	timestampKey = "@timestamp"
+	verticleKey = "Verticle"
 )
 
-func Start() {
-	http.Handle("/metrics", promhttp.Handler())
-	go http.ListenAndServe(":2112", nil)
+type Metric interface {
+	Values() map[string]interface{}
+	AddTag(name string, val interface{})
 }
 
+type Gauge struct {
+	data		map[string]interface{}
 
-func NewCounter(name, description string) *prometheus.CounterVec {
-	return promauto.NewCounterVec(prometheus.CounterOpts{
-		Name: name,
-		Help: description,
-	}, []string {"testId"})
 }
 
+func NewGauge(verticle string, name string, value float64, timestamp string) Metric {
+	data := make(map[string]interface{})
+	data[nameKey] = name
+	data[valueKey] = value
+	data[timestampKey] = timestamp
+	data[verticleKey] = verticle
+	return &Gauge{data: data}
+}
+
+func (g *Gauge) Values() map[string]interface{} {
+	return g.data
+}
+
+func (g *Gauge) AddTag(name string, val interface{}) {
+	g.data[name] = val
+}

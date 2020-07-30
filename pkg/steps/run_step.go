@@ -2,35 +2,39 @@ package steps
 
 import (
 	"context"
-	"github.com/jfbramlett/go-loadtest/pkg/collector"
-	"github.com/jfbramlett/go-loadtest/pkg/logging"
-	"github.com/jfbramlett/go-loadtest/pkg/testwrapper"
-	"github.com/jfbramlett/go-loadtest/pkg/utils"
+	"github.com/ninthwave/nwp-load-test/pkg/collector"
+	"github.com/ninthwave/nwp-load-test/pkg/logging"
+	"github.com/ninthwave/nwp-load-test/pkg/testscenario"
+	"github.com/ninthwave/nwp-load-test/pkg/utils"
 	"time"
 )
 
 // Step that executes our run function
 type runFuncStep struct {
-	test            testwrapper.Test
+	test            testscenario.Test
 	resultCollector collector.ResultCollector
 }
 
 func (r *runFuncStep) Execute(ctx context.Context) error {
 	logger, ctx := logging.GetLoggerFromContext(ctx, r)
+	testId := utils.GetTestIdFromContext(ctx)
 	timerStart := time.Now()
-	err := r.test.Run(ctx)
+	result := r.test.Run(ctx, testId)
 
-	if err == nil {
-		r.resultCollector.AddTestResult(collector.NewPassedTest(utils.GetTestIdFromContext(ctx), time.Since(timerStart)))
+	runTime := time.Since(timerStart)
+	result.SetDuration(runTime)
+
+	if result.Passed() {
+		r.resultCollector.AddTestResult(result)
 	} else {
-		logger.Error(ctx, err, "Error")
-		r.resultCollector.AddTestResult(collector.NewFailedTest(utils.GetTestIdFromContext(ctx), time.Since(timerStart), err))
+		logger.Error(ctx, result.Error(), "Error in test " + result.Name() + " with id " + result.Id() + " and request id " + result.RequestId())
+		r.resultCollector.AddTestResult(result)
 	}
 
 	return nil
 }
 
-func NewRunFuncStep(test testwrapper.Test, resultCollector collector.ResultCollector) Step {
+func NewRunFuncStep(test testscenario.Test, resultCollector collector.ResultCollector) Step {
 	return &runFuncStep{test: test, resultCollector: resultCollector}
 }
 

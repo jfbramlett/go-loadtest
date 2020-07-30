@@ -2,9 +2,9 @@ package loadprofile
 
 import (
 	"context"
-	"github.com/jfbramlett/go-loadtest/pkg/collector"
-	"github.com/jfbramlett/go-loadtest/pkg/rampstrategy"
-	"github.com/jfbramlett/go-loadtest/pkg/testwrapper"
+	"github.com/ninthwave/nwp-load-test/pkg/collector"
+	"github.com/ninthwave/nwp-load-test/pkg/rampstrategy"
+	"github.com/ninthwave/nwp-load-test/pkg/testscenario"
 	"time"
 )
 
@@ -17,8 +17,21 @@ const (
 )
 
 
+func GetLoadProfileType(v int) LoadProfileType {
+	switch v {
+	case 1:
+		return StaticProfile
+	case 2:
+		return RandomProfile
+	case 3:
+		return PartialRandomProfile
+	}
+
+	return StaticProfile
+}
+
 type LoadProfileBuilder interface {
-	GetLoadProfiles(ctx context.Context, runFunc testwrapper.Test, resultCollector collector.ResultCollector) []LoadProfile
+	GetLoadProfiles(ctx context.Context, runFunc testscenario.Test, resultCollector collector.ResultCollector) []LoadProfile
 }
 
 

@@ -1,0 +1,51 @@
+{
+  "auth" : {
+    "user": "asyst",
+    "pwd": "Asyst1234#",
+    "domain": "efb9w-sb.nz.fdx.finance",
+    "client": "4n3cajbfq630mf3vso7m7kem43",
+    "secret": "1kq2ocjhm152f8r2krniedqtjjenus35ce5sdpeq208lfoh03gd",
+    "scope": "aws.cognito.signin.user.admin%20dda10/FinancialInformation%20fdx30/FinancialInformation",
+    "verbose": "nodebug",
+    "clientId": "DEMO0282db6dd5a24136bfbd1ab12125f29a",
+    "fid": "12879",
+    "apiKey": "xgmRQoIEOK85ReZPwK24v45iPM4s19721OiLyi2l"
+  },
+  "endpoints": [
+    {
+      "name": "accountlist",
+      "method": "GET",
+      "url": "https://efb9w-sb.fdx.finance/fdx-3.0/accountlist"
+    },
+    {
+      "name": "account",
+      "method": "GET",
+      "url": "https://efb9w-sb.fdx.finance/fdx-3.0/account/0002249950"
+    },
+    {
+      "method": "POST",
+      "url": "https://efb9w-sb.fdx.finance/fdx-3.0/account",
+      "formbody": {
+        "accountId": "0002249950"
+      },
+      "headers": {
+        "Content-Type": "application/x-www-form-urlencoded"
+      }
+    },
+    {
+      "name": "transactions",
+      "method": "GET",
+      "url": "https://efb9w-sb.fdx.finance/fdx-3.0/account/0002249950/transactions"
+    }
+  ],
+  "runtype": "all",
+  "name": "sandbox-perf-test",
+  "traceKey": "DDA-InteractionId",
+  "headers": {
+    "Accept-Charset": "UTF-8",
+    "Accept-Encoding": "identity",
+    "Accept": "application/json",
+    "Accept-Charset": "UTF-8",
+    "Content-Type": "application/json"
+  }
+}

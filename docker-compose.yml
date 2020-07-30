@@ -1,72 +1,49 @@
-version: '3.5'
-
-networks:
-  envoymesh:
-    name: envoymesh
+version: '3.3'
 
 services:
 
-  plat0-common-sidecar-sample:
-    image: ${SERVICE_IMAGE:-plat0-common-sidecar-sample__master}
-    networks:
-      envoymesh:
-        aliases:
-        - plat0-common-sidecar-sample
-    environment:
-    - SERVICE_NAME=service1
-    - RABBIT_HOST=amqp://guest:guest@rabbitmq:5672/
-    expose:
-    - "5000"
-
-  envoy1:
-    image: ${ENVOY_IMAGE:-524951270132.dkr.ecr.us-east-1.amazonaws.com/proto0:plat0-envoy__master}
-    networks:
-      envoymesh:
-        aliases:
-          - envoy1
-    environment:
-      - AUTH_TOKEN=myroot
-      - VAULT_ADDR=http://vault:8500
-      - PORT=443
-      - SERVICE_HOST=plat0-common-sidecar-sample
-      - SERVICE_PORT=5000
-      - ADMIN_PORT=8081
+  prometheus:
+    image: prom/prometheus
     ports:
-      - "500:443"
-    depends_on:
-      - vault
-
-  vault:
-    image: ${VAULT_IMAGE:-524951270132.dkr.ecr.us-east-1.amazonaws.com/proto0:plat0-vault-dev__master}
+      - "9090:9090"
+    volumes:
+      - type: bind
+        source: ./prometheus.yml
+        target: /etc/prometheus/prometheus.yml
     networks:
-      envoymesh:
-        aliases:
-        - vault
+      - nwp-load-test-network
+
+  prometheus_push_gateway:
+    image: prom/pushgateway
+    ports:
+      - "9091:9091"
+    networks:
+      - nwp-load-test-network
+
+  grafana:
+    image: grafana/grafana
+    ports:
+      - "3000:3000"
+    network_mode: host
+
+  elastic:
+    image: docker.elastic.co/elasticsearch/elasticsearch:6.6.0
     environment:
-      - VAULT_TOKEN=myroot
-      - VAULT_PORT=8500
-      - COMMON_NAME=John-Bramletts-MacBook-Pro.local
-    cap_add:
-    - IPC_LOCK
-    expose:
-    - "8500"
+      discovery.type: "single-node"
     ports:
-      - "8500:8500"
-
-  rabbitmq:
-    image: ${RABBIT_IMAGE:-524951270132.dkr.ecr.us-east-1.amazonaws.com/proto0:plat0-rabbitmq__latest}
+      - "9200:9200"
+      - "9300:9300"
     networks:
-      envoymesh:
-        aliases:
-        - rabbitmq
-    ports:
-    - "5671:5671"
-    - "15671:15671"
-    - "5672:5672"
-    - "15672:15672"
-    healthcheck:
-      timeout: 5s
-      interval: 5s
-      retries: 5
-      test: ["CMD", "rabbitmqctl", "node_health_check"]
+      - nwp-load-test-network
+
+  nwp-load-test:
+    image: nwp/nwp-load-test:latest
+    volumes:
+    - "./:/etc/config/nwp-load-test"
+    command: ["-elasticUrl", "http://elastic:9200", "-elasticIndex", "metrics", "-scenario", "/etc/config/nwp-load-test/dev-scenario.json"]
+    networks:
+      - nwp-load-test-network
+
+networks:
+  nwp-load-test-network:
 

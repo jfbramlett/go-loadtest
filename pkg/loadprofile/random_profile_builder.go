@@ -2,12 +2,12 @@ package loadprofile
 
 import (
 	"context"
-	"github.com/jfbramlett/go-loadtest/pkg/collector"
-	"github.com/jfbramlett/go-loadtest/pkg/logging"
-	"github.com/jfbramlett/go-loadtest/pkg/rampstrategy"
-	"github.com/jfbramlett/go-loadtest/pkg/testwrapper"
-	"github.com/jfbramlett/go-loadtest/pkg/steps"
-	"github.com/jfbramlett/go-loadtest/pkg/utils"
+	"github.com/ninthwave/nwp-load-test/pkg/collector"
+	"github.com/ninthwave/nwp-load-test/pkg/logging"
+	"github.com/ninthwave/nwp-load-test/pkg/rampstrategy"
+	"github.com/ninthwave/nwp-load-test/pkg/testscenario"
+	"github.com/ninthwave/nwp-load-test/pkg/steps"
+	"github.com/ninthwave/nwp-load-test/pkg/utils"
 	"time"
 )
 
@@ -20,7 +20,7 @@ type randomProfileBuilder struct {
 }
 
 
-func (s *randomProfileBuilder) GetLoadProfiles(ctx context.Context, runFunc testwrapper.Test, resultCollector collector.ResultCollector) []LoadProfile {
+func (s *randomProfileBuilder) GetLoadProfiles(ctx context.Context, runFunc testscenario.Test, resultCollector collector.ResultCollector) []LoadProfile {
 	runners := make([]LoadProfile, 0)
 	logger, ctx := logging.GetLoggerFromContext(ctx, s)
 

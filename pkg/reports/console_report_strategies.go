@@ -3,8 +3,8 @@ package reports
 import (
 	"context"
 	"fmt"
-	"github.com/jfbramlett/go-loadtest/pkg/collector"
-	"github.com/jfbramlett/go-loadtest/pkg/logging"
+	"github.com/ninthwave/nwp-load-test/pkg/collector"
+	"github.com/ninthwave/nwp-load-test/pkg/logging"
 	"time"
 )
 
@@ -30,19 +30,19 @@ func (c *consoleReportStrategy) Report(ctx context.Context, concurrentRequests i
 
 	for _, t := range results.GetPassedTests() {
 		totalRequests++
-		totalTime = totalTime + t.Duration
-		if t.Duration > maxTime {
-			maxTime = t.Duration
+		totalTime = totalTime + t.Duration()
+		if t.Duration() > maxTime {
+			maxTime = t.Duration()
 		}
-		if minTime == 0 || t.Duration < minTime {
-			minTime = t.Duration
+		if minTime == 0 || t.Duration() < minTime {
+			minTime = t.Duration()
 		}
-		if t.Duration <= c.MinTimeThreshold {
+		if t.Duration() <= c.MinTimeThreshold {
 			totalLessThanMin++
-		} else if t.Duration > c.MinTimeThreshold && t.Duration <= c.MaxTimeThreshold {
+		} else if t.Duration() > c.MinTimeThreshold && t.Duration() <= c.MaxTimeThreshold {
 			totalInMiddle++
 		}
-		if t.Duration > c.MaxTimeThreshold {
+		if t.Duration() > c.MaxTimeThreshold {
 			totalAboveThreshold++
 		}
 	}

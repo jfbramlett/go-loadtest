@@ -2,7 +2,7 @@ package reports
 
 import (
 	"context"
-	"github.com/jfbramlett/go-loadtest/pkg/collector"
+	"github.com/ninthwave/nwp-load-test/pkg/collector"
 	"time"
 )
 

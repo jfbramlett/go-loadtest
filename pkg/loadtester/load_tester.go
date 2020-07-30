@@ -2,38 +2,39 @@ package loadtester
 
 import (
 	"context"
-	"github.com/jfbramlett/go-loadtest/pkg/collector"
-	"github.com/jfbramlett/go-loadtest/pkg/loadprofile"
-	"github.com/jfbramlett/go-loadtest/pkg/logging"
-	"github.com/jfbramlett/go-loadtest/pkg/naming"
-	"github.com/jfbramlett/go-loadtest/pkg/rampstrategy"
-	"github.com/jfbramlett/go-loadtest/pkg/testwrapper"
-	"github.com/jfbramlett/go-loadtest/pkg/utils"
+	"github.com/ninthwave/nwp-load-test/pkg/collector"
+	"github.com/ninthwave/nwp-load-test/pkg/loadprofile"
+	"github.com/ninthwave/nwp-load-test/pkg/logging"
+	"github.com/ninthwave/nwp-load-test/pkg/idgenerator"
+	"github.com/ninthwave/nwp-load-test/pkg/rampstrategy"
+	"github.com/ninthwave/nwp-load-test/pkg/testscenario"
+	"github.com/ninthwave/nwp-load-test/pkg/utils"
 	"sync"
 	"time"
 )
 
 type LoadTester interface {
-	Run(ctx context.Context, runFunc testwrapper.Test) collector.ResultCollector
+	Run(ctx context.Context, runFunc testscenario.Test) collector.ResultCollector
 }
 
 
 type DefaultLoadTester struct {
-	loadProfileBuilder		loadprofile.LoadProfileBuilder
-	namer					naming.TestNamer
-	resultCollector			collector.ResultCollector
+	loadProfileBuilder loadprofile.LoadProfileBuilder
+	idGenerator        idgenerator.TestIdGenerator
+	resultCollector    collector.ResultCollector
 }
 
-func (l *DefaultLoadTester) Run(ctx context.Context, runFunc testwrapper.Test) collector.ResultCollector {
+func (l *DefaultLoadTester) Run(ctx context.Context, runFunc testscenario.Test) collector.ResultCollector {
 	logger, ctx := logging.GetLoggerFromContext(ctx, l)
 
-	logger.Info(ctx, "Starting runners")
+	logger.Info(ctx, "Starting results collector")
 	l.resultCollector.Start()
 
+	logger.Info(ctx, "Starting runners")
 	wg := sync.WaitGroup{}
 	for i, r := range l.loadProfileBuilder.GetLoadProfiles(ctx, runFunc, l.resultCollector) {
 		wg.Add(1)
-		ctx := utils.SetTestIdInContext(ctx, l.namer.GetName(i))
+		ctx := utils.SetTestIdInContext(ctx, l.idGenerator.GetId(i))
 		go l.runWrapper(r, ctx, &wg)
 	}
 
@@ -52,9 +53,9 @@ func (l *DefaultLoadTester) runWrapper(load loadprofile.LoadProfile, ctx context
 }
 
 
-func NewDefaultLoadTester(loadProfileBuilder loadprofile.LoadProfileBuilder, namer naming.TestNamer, resultCollector collector.ResultCollector) LoadTester {
+func NewDefaultLoadTester(loadProfileBuilder loadprofile.LoadProfileBuilder, idGenerator idgenerator.TestIdGenerator, resultCollector collector.ResultCollector) LoadTester {
 	return &DefaultLoadTester{loadProfileBuilder: loadProfileBuilder,
-		namer: namer,
+		idGenerator: idGenerator,
 		resultCollector: resultCollector,
 	}
 }
@@ -66,7 +67,7 @@ func NewLoadTester(concurrentUsers int, testLength time.Duration, testInterval t
 	loadProfileBuilder := loadprofile.NewLoadProfileBuilder(profileType, concurrentUsers, testLength, testInterval, strategyType)
 
 	return &DefaultLoadTester{loadProfileBuilder: loadProfileBuilder,
-		namer: naming.NewSimpleTestNamer(),
+		idGenerator:     idgenerator.NewSimpleTestIdGenerator(),
 		resultCollector: collector.NewInMemoryRunCollector(),
 	}
 }

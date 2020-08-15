@@ -2,8 +2,8 @@ package loadprofile
 
 import (
 	"context"
-	"github.com/ninthwave/nwp-load-test/pkg/logging"
-	"github.com/ninthwave/nwp-load-test/pkg/steps"
+	"github.com/jfbramlett/go-loadtest/pkg/logging"
+	"github.com/jfbramlett/go-loadtest/pkg/steps"
 	"time"
 )
 

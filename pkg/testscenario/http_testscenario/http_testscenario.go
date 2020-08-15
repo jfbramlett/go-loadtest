@@ -6,7 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/google/uuid"
-	"github.com/ninthwave/nwp-load-test/pkg/testscenario"
+	"github.com/jfbramlett/go-loadtest/pkg/testscenario"
 	"html/template"
 	"io"
 	"io/ioutil"

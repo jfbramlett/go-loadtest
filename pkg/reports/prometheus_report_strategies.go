@@ -2,8 +2,8 @@ package reports
 
 import (
 	"context"
-	"github.com/ninthwave/nwp-load-test/pkg/collector"
-	"github.com/ninthwave/nwp-load-test/pkg/logging"
+	"github.com/jfbramlett/go-loadtest/pkg/collector"
+	"github.com/jfbramlett/go-loadtest/pkg/logging"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
 	"github.com/prometheus/client_golang/prometheus/push"

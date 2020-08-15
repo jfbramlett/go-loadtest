@@ -3,7 +3,7 @@ package logging
 import (
 	"context"
 	"fmt"
-	"github.com/ninthwave/nwp-load-test/pkg/utils"
+	"github.com/jfbramlett/go-loadtest/pkg/utils"
 	"time"
 )
 

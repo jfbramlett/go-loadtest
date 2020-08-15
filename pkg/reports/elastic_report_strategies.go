@@ -6,9 +6,9 @@ import (
 	"errors"
 	"github.com/elastic/go-elasticsearch/v6"
 	"github.com/elastic/go-elasticsearch/v6/esapi"
-	"github.com/ninthwave/nwp-load-test/pkg/collector"
-	"github.com/ninthwave/nwp-load-test/pkg/logging"
-	"github.com/ninthwave/nwp-load-test/pkg/metrics"
+	"github.com/jfbramlett/go-loadtest/pkg/collector"
+	"github.com/jfbramlett/go-loadtest/pkg/logging"
+	"github.com/jfbramlett/go-loadtest/pkg/metrics"
 	"strings"
 	"time"
 )

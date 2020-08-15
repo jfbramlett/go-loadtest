@@ -2,9 +2,9 @@ package loadprofile
 
 import (
 	"context"
-	"github.com/ninthwave/nwp-load-test/pkg/collector"
-	"github.com/ninthwave/nwp-load-test/pkg/rampstrategy"
-	"github.com/ninthwave/nwp-load-test/pkg/testscenario"
+	"github.com/jfbramlett/go-loadtest/pkg/collector"
+	"github.com/jfbramlett/go-loadtest/pkg/rampstrategy"
+	"github.com/jfbramlett/go-loadtest/pkg/testscenario"
 	"time"
 )
 

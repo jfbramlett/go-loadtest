@@ -2,7 +2,7 @@ package rampstrategy
 
 import (
 	"context"
-	"github.com/ninthwave/nwp-load-test/pkg/utils"
+	"github.com/jfbramlett/go-loadtest/pkg/utils"
 	"time"
 )
 

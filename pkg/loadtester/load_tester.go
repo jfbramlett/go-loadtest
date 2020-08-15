@@ -2,13 +2,13 @@ package loadtester
 
 import (
 	"context"
-	"github.com/ninthwave/nwp-load-test/pkg/collector"
-	"github.com/ninthwave/nwp-load-test/pkg/loadprofile"
-	"github.com/ninthwave/nwp-load-test/pkg/logging"
-	"github.com/ninthwave/nwp-load-test/pkg/idgenerator"
-	"github.com/ninthwave/nwp-load-test/pkg/rampstrategy"
-	"github.com/ninthwave/nwp-load-test/pkg/testscenario"
-	"github.com/ninthwave/nwp-load-test/pkg/utils"
+	"github.com/jfbramlett/go-loadtest/pkg/collector"
+	"github.com/jfbramlett/go-loadtest/pkg/loadprofile"
+	"github.com/jfbramlett/go-loadtest/pkg/logging"
+	"github.com/jfbramlett/go-loadtest/pkg/idgenerator"
+	"github.com/jfbramlett/go-loadtest/pkg/rampstrategy"
+	"github.com/jfbramlett/go-loadtest/pkg/testscenario"
+	"github.com/jfbramlett/go-loadtest/pkg/utils"
 	"sync"
 	"time"
 )

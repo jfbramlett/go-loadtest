@@ -1,7 +1,7 @@
 package collector
 
 import (
-	"github.com/ninthwave/nwp-load-test/pkg/testscenario"
+	"github.com/jfbramlett/go-loadtest/pkg/testscenario"
 )
 
 type ResultCollector interface {

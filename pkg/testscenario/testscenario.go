@@ -2,7 +2,7 @@ package testscenario
 
 import (
 	"context"
-	"github.com/ninthwave/nwp-load-test/pkg/metrics"
+	"github.com/jfbramlett/go-loadtest/pkg/metrics"
 	"time"
 )
 

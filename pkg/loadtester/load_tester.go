@@ -3,9 +3,8 @@ package loadtester
 import (
 	"context"
 	"github.com/jfbramlett/go-loadtest/pkg/collector"
-	"github.com/jfbramlett/go-loadtest/pkg/loadprofile"
-	"github.com/jfbramlett/go-loadtest/pkg/logging"
 	"github.com/jfbramlett/go-loadtest/pkg/idgenerator"
+	"github.com/jfbramlett/go-loadtest/pkg/loadprofile"
 	"github.com/jfbramlett/go-loadtest/pkg/rampstrategy"
 	"github.com/jfbramlett/go-loadtest/pkg/testscenario"
 	"github.com/jfbramlett/go-loadtest/pkg/utils"
@@ -25,12 +24,12 @@ type DefaultLoadTester struct {
 }
 
 func (l *DefaultLoadTester) Run(ctx context.Context, runFunc testscenario.Test) collector.ResultCollector {
-	logger, ctx := logging.GetLoggerFromContext(ctx, l)
+	logger := utils.LoggerFromContext(ctx)
 
-	logger.Info(ctx, "Starting results collector")
+	logger.Info( "Starting results collector")
 	l.resultCollector.Start()
 
-	logger.Info(ctx, "Starting runners")
+	logger.Info( "Starting runners")
 	wg := sync.WaitGroup{}
 	for i, r := range l.loadProfileBuilder.GetLoadProfiles(ctx, runFunc, l.resultCollector) {
 		wg.Add(1)
@@ -38,9 +37,9 @@ func (l *DefaultLoadTester) Run(ctx context.Context, runFunc testscenario.Test) 
 		go l.runWrapper(r, ctx, &wg)
 	}
 
-	logger.Info(context.Background(), "Waiting for tests to end")
+	logger.Info("Waiting for tests to end")
 	wg.Wait()
-	logger.Info(context.Background(), "Tests completed")
+	logger.Info("Tests completed")
 	l.resultCollector.Stop()
 
 	return l.resultCollector

@@ -7,8 +7,8 @@ import (
 	"github.com/elastic/go-elasticsearch/v6"
 	"github.com/elastic/go-elasticsearch/v6/esapi"
 	"github.com/jfbramlett/go-loadtest/pkg/collector"
-	"github.com/jfbramlett/go-loadtest/pkg/logging"
 	"github.com/jfbramlett/go-loadtest/pkg/metrics"
+	"github.com/jfbramlett/go-loadtest/pkg/utils"
 	"strings"
 	"time"
 )
@@ -37,7 +37,7 @@ func (e *elasticReportStrategy) Report(ctx context.Context, concurrentRequests i
 	var totalLessThanMin int64
 	var totalInMiddle int64
 
-	logger, ctx := logging.GetLoggerFromContext(ctx, e)
+	logger := utils.LoggerFromContext(ctx)
 
 	cfg := elasticsearch.Config{
 		Addresses: []string{
@@ -47,7 +47,7 @@ func (e *elasticReportStrategy) Report(ctx context.Context, concurrentRequests i
 	}
 	es, err := elasticsearch.NewClient(cfg)
 	if err != nil {
-		logger.Error(ctx, err, "failed to connect to elastic");
+		logger.WithError(err).Error("failed to connect to elastic");
 		return
 	}
 
@@ -99,12 +99,12 @@ func (e *elasticReportStrategy) Report(ctx context.Context, concurrentRequests i
 }
 
 func (e *elasticReportStrategy) writeMetric(ctx context.Context, esClient *elasticsearch.Client, metric metrics.Metric) error {
-	logger, ctx := logging.GetLoggerFromContext(ctx, e)
+	logger := utils.LoggerFromContext(ctx)
 
 	values := metric.Values()
 	jsonString, err := json.Marshal(values)
 	if err != nil {
-		logger.Error(ctx, err, "failed to convert metric to json")
+		logger.WithError( err).Error( "failed to convert metric to json")
 		return err
 	}
 
@@ -117,18 +117,18 @@ func (e *elasticReportStrategy) writeMetric(ctx context.Context, esClient *elast
 
 	res, err := req.Do(context.Background(), esClient)
 	if err != nil {
-		logger.Error(ctx, err, "Error getting response")
+		logger.WithError( err).Error( "Error getting response")
 		return err
 	}
 	defer res.Body.Close()
 
 	var r map[string]interface{}
 	if err := json.NewDecoder(res.Body).Decode(&r); err != nil {
-		logger.Infof(ctx, "Error parsing the response body: %s", err)
+		logger.Infof( "Error parsing the response body: %s", err)
 	} else {
 		if res.IsError() {
 			err = errors.New("failed to record metric in elastic")
-			logger.Errorf(ctx, err, "%v", r)
+			logger.WithError( err).Error( "%v", r)
 			return err
 		}
 	}

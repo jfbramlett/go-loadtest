@@ -2,8 +2,8 @@ package loadprofile
 
 import (
 	"context"
-	"github.com/jfbramlett/go-loadtest/pkg/logging"
 	"github.com/jfbramlett/go-loadtest/pkg/steps"
+	"github.com/jfbramlett/go-loadtest/pkg/utils"
 	"time"
 )
 
@@ -19,10 +19,9 @@ type defaultLoadProfile struct {
 }
 
 
-// runs the loop that executes our run steps around running the test
 func (r *defaultLoadProfile) Run(ctx context.Context) {
-	logger, ctx := logging.GetLoggerFromContext(ctx, r)
-	logger.Info(ctx, "starting run")
+	logger := utils.LoggerFromContext(ctx)
+	logger.Info("starting run")
 
 	testStart := time.Now()
 	for r.testLength > time.Since(testStart) {
@@ -30,13 +29,13 @@ func (r *defaultLoadProfile) Run(ctx context.Context) {
 			if r.testLength > time.Since(testStart) {
 				err := step.Execute(ctx)
 				if r.stopOnError && err != nil {
-					logger.Error(ctx, err, "run failed with error")
+					logger.WithError(err).Error("run failed with error")
 					return
 				}
 			}
 		}
 	}
-	logger.Info(ctx, "run complete")
+	logger.Info("run complete")
 }
 
 func NewLoadProfile(runSteps []steps.Step, testLength time.Duration, stopOnError bool) LoadProfile {

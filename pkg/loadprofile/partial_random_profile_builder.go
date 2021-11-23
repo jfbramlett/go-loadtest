@@ -3,10 +3,9 @@ package loadprofile
 import (
 	"context"
 	"github.com/jfbramlett/go-loadtest/pkg/collector"
-	"github.com/jfbramlett/go-loadtest/pkg/logging"
 	"github.com/jfbramlett/go-loadtest/pkg/rampstrategy"
-	"github.com/jfbramlett/go-loadtest/pkg/testscenario"
 	"github.com/jfbramlett/go-loadtest/pkg/steps"
+	"github.com/jfbramlett/go-loadtest/pkg/testscenario"
 	"github.com/jfbramlett/go-loadtest/pkg/utils"
 	"time"
 )
@@ -23,7 +22,7 @@ type partialRandomProfileBuilder struct {
 
 func (p *partialRandomProfileBuilder) GetLoadProfiles(ctx context.Context, runFunc testscenario.Test, resultCollector collector.ResultCollector) []LoadProfile {
 	runners := make([]LoadProfile, 0)
-	logger, ctx := logging.GetLoggerFromContext(ctx, p)
+	logger := utils.LoggerFromContext(ctx)
 
 	runFuncStep := steps.NewRunFuncStep(runFunc, resultCollector)
 
@@ -31,7 +30,7 @@ func (p *partialRandomProfileBuilder) GetLoadProfiles(ctx context.Context, runFu
 	startDelays := p.rampUpStrategy.GetStartProfile(ctx, p.testLength, p.concurrentUsers)
 
 	for i, sd := range startDelays {
-		logger.Infof(ctx,"Creating start set of %d users with initial delay of %v with max execution interval %v", sd.Users, sd.Delay, p.interval)
+		logger.Infof("Creating start set of %d users with initial delay of %v with max execution interval %v", sd.Users, sd.Delay, p.interval)
 		initialDelayStep := steps.NewInitialWaitStep(sd.Delay)
 
 		var waitStep steps.Step

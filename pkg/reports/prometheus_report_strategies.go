@@ -3,7 +3,7 @@ package reports
 import (
 	"context"
 	"github.com/jfbramlett/go-loadtest/pkg/collector"
-	"github.com/jfbramlett/go-loadtest/pkg/logging"
+	"github.com/jfbramlett/go-loadtest/pkg/utils"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
 	"github.com/prometheus/client_golang/prometheus/push"
@@ -26,7 +26,7 @@ type prometheusReportStrategy struct {
 
 func (p *prometheusReportStrategy) Report(ctx context.Context, concurrentRequests int, testDurationSec time.Duration, results collector.ResultCollector) {
 
-	logger, ctx := logging.GetLoggerFromContext(ctx, p)
+	logger := utils.LoggerFromContext(ctx)
 	pusher := push.New(p.PrometheusUrl, p.Name)
 
 	var totalRequests int64
@@ -151,14 +151,14 @@ func (p *prometheusReportStrategy) Report(ctx context.Context, concurrentRequest
 	pusher.Collector(percentAboveGuage)
 	percentAboveGuage.Set(thresholdPercent)
 
-	logger.Info(ctx, "sending metrics to prometheus gateway")
+	logger.Info("sending metrics to prometheus gateway")
 	err := pusher.Push()
 	if err != nil {
-		logger.Error(ctx, err, "failed to send metrics to prometheus gateway")
+		logger.WithError(err).Error( "failed to send metrics to prometheus gateway")
 		return
 	}
 
-	logger.Info(ctx, "successfully sent metrics to prometheus gateway")
+	logger.Info("successfully sent metrics to prometheus gateway")
 }
 
 

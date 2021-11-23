@@ -3,7 +3,6 @@ package steps
 import (
 	"context"
 	"github.com/jfbramlett/go-loadtest/pkg/collector"
-	"github.com/jfbramlett/go-loadtest/pkg/logging"
 	"github.com/jfbramlett/go-loadtest/pkg/testscenario"
 	"github.com/jfbramlett/go-loadtest/pkg/utils"
 	"time"
@@ -16,7 +15,7 @@ type runFuncStep struct {
 }
 
 func (r *runFuncStep) Execute(ctx context.Context) error {
-	logger, ctx := logging.GetLoggerFromContext(ctx, r)
+	logger := utils.LoggerFromContext(ctx)
 	testId := utils.GetTestIdFromContext(ctx)
 	timerStart := time.Now()
 	result := r.test.Run(ctx, testId)
@@ -27,7 +26,7 @@ func (r *runFuncStep) Execute(ctx context.Context) error {
 	if result.Passed() {
 		r.resultCollector.AddTestResult(result)
 	} else {
-		logger.Error(ctx, result.Error(), "Error in test " + result.Name() + " with id " + result.Id() + " and request id " + result.RequestId())
+		logger.WithError(result.Error()).Error("Error in test " + result.Name() + " with id " + result.Id() + " and request id " + result.RequestId())
 		r.resultCollector.AddTestResult(result)
 	}
 

@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/jfbramlett/go-loadtest/pkg/collector"
-	"github.com/jfbramlett/go-loadtest/pkg/logging"
+	"github.com/jfbramlett/go-loadtest/pkg/utils"
 	"time"
 )
 
@@ -53,7 +53,7 @@ func (c *consoleReportStrategy) Report(ctx context.Context, concurrentRequests i
 	middlePercent := (float64(totalInMiddle) / float64(totalRequests)) * float64(100)
 	thresholdPercent := (float64(totalAboveThreshold)/ float64(totalRequests)) * float64(100)
 
-	logger, ctx := logging.GetLoggerFromContext(ctx, c)
+	logger := utils.LoggerFromContext(ctx)
 	msg := fmt.Sprintf(`Total Concurrent Requests: %d
 Test Duration %d s
 Total Time %d ms
@@ -71,7 +71,6 @@ Num Above %d ms %d (%.2f %%)`,
 		int64(c.MinTimeThreshold/time.Millisecond), int64(c.MaxTimeThreshold/time.Millisecond), totalInMiddle, middlePercent,
 		int64(c.MaxTimeThreshold/time.Millisecond), totalAboveThreshold, thresholdPercent)
 
-	logger.Info(context.Background(), msg)
-
+	logger.Info(msg)
 }
 

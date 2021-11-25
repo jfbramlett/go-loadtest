@@ -54,7 +54,7 @@ func (c *consoleReportStrategy) Report(ctx context.Context, concurrentRequests i
 		lessThanPercent := (float64(totalLessThanMin) / float64(totalRequests)) * float64(100)
 		middlePercent := (float64(totalInMiddle) / float64(totalRequests)) * float64(100)
 		thresholdPercent := (float64(totalAboveThreshold) / float64(totalRequests)) * float64(100)
-
+		fmt.Println("================================================")
 		msg := fmt.Sprintf(`Test: %s
 Total Concurrent Requests: %d
 Test Duration %d s

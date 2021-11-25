@@ -11,7 +11,7 @@ type WeightedTest struct {
 	Weight uint
 }
 
-func NewWightedTest(test TestFunc, weight uint) WeightedTest {
+func NewWeightedTest(test TestFunc, weight uint) WeightedTest {
 	return WeightedTest{Test: test, Weight: weight}
 }
 

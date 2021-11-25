@@ -53,16 +53,16 @@ func main() {
 			testscenario.NewWeightedTest(
 				testscenario.NewTest("test 1", func(ctx context.Context) error {
 					return nil
-				}), 5),
+				}), 2),
 			testscenario.NewWeightedTest(
 				testscenario.NewTest("test 2", func(ctx context.Context) error {
 					return nil
-				}), 5),
+				}), 8),
 		),
 		nil, nil, concurrentUsers, testLength, testscenario.NoopStartStrategy, testscenario.FixedPauseStrategy(testInterval),
 	)
 
-	scenario.Run(context.Background(), resultsCollector)
+	_ = scenario.Run(context.Background(), resultsCollector)
 
 	if *publishMetricsToPrometheus {
 		prometheusReporter := reports.NewPrometheusReportStrategy("perf-test", minThreshold, maxThreshold, *prometheusUrl)

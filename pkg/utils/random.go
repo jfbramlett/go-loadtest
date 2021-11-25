@@ -22,3 +22,7 @@ func RandomMilliSecondDuration(min time.Duration, max time.Duration) time.Durati
 	randMilliSecs := RandomInt64Between(DurationMillis(min), DurationMillis(max))
 	return time.Duration(randMilliSecs) * time.Millisecond
 }
+
+func DurationMillis(dur time.Duration) int64 {
+	return int64(dur / time.Millisecond)
+}

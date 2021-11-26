@@ -50,16 +50,10 @@ func main() {
 
 	scenario := testscenario.NewTestScenario(
 		testscenario.NewWeightedTestFunc(
-			testscenario.NewWeightedTest(
-				testscenario.NewTest("test 1", func(ctx context.Context) error {
-					return nil
-				}), 2),
-			testscenario.NewWeightedTest(
-				testscenario.NewTest("test 2", func(ctx context.Context) error {
-					return nil
-				}), 8),
+			testscenario.NewWeightedTest(testFunc("test 1"), 2),
+			testscenario.NewWeightedTest(testFunc("test 2"), 8),
 		),
-		nil, nil, concurrentUsers, testLength, testscenario.NoopStartStrategy, testscenario.FixedPauseStrategy(testInterval),
+		nil, nil, concurrentUsers, testLength, testscenario.RandomStartStrategy, testscenario.FixedPauseStrategy(testInterval),
 	)
 
 	_ = scenario.Run(context.Background(), resultsCollector)
@@ -76,4 +70,10 @@ func main() {
 
 	reporter := reports.NewConsoleReportStrategy(minThreshold, maxThreshold)
 	reporter.Report(context.Background(), concurrentUsers, testLength, resultsCollector)
+}
+
+func testFunc(name string) testscenario.TestFunc {
+	return testscenario.NewTest(name, func(ctx context.Context) error {
+		return nil
+	})
 }

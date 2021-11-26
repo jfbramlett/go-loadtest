@@ -9,15 +9,14 @@ import (
 )
 
 type TestScenario struct {
-	name             string
-	test             TestFunc
-	setup            SetupFunc
-	teardown         TeardownFunc
-	maxUsers         int
-	testLength       time.Duration
-	startStrategy    StartStrategyFunc
-	pauseFunc        PauseStrategyFunc
-	resultsCollector ResultCollector
+	name          string
+	test          TestFunc
+	setup         SetupFunc
+	teardown      TeardownFunc
+	maxUsers      int
+	testLength    time.Duration
+	startStrategy StartStrategyFunc
+	pauseFunc     PauseStrategyFunc
 }
 
 func NewTestScenario(test TestFunc, setup SetupFunc, teardown TeardownFunc, maxUsers int, testLength time.Duration, startStrategy StartStrategyFunc, pause PauseStrategyFunc) *TestScenario {
@@ -49,12 +48,13 @@ func (ts *TestScenario) Run(ctx context.Context, resultsCollector ResultCollecto
 
 	wg := sync.WaitGroup{}
 	for _, sp := range startProfiles {
+		logger.Infof("starting %d users with start delay %dms", sp.Users, sp.Delay.Milliseconds())
 		for i := 0; i < sp.Users; i++ {
 			wg.Add(1)
 			go func() {
 				start := time.Now()
 				time.Sleep(sp.Delay)
-				for time.Now().Sub(start) < ts.testLength {
+				for time.Since(start) < ts.testLength {
 					ts.test(ctx, resultsCollector)
 					if time.Since(start) < ts.testLength && ts.pauseFunc != nil {
 						ts.pauseFunc(ctx)

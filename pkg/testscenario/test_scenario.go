@@ -19,8 +19,9 @@ type TestScenario struct {
 	pauseFunc     PauseStrategyFunc
 }
 
-func NewTestScenario(test TestFunc, setup SetupFunc, teardown TeardownFunc, maxUsers int, testLength time.Duration, startStrategy StartStrategyFunc, pause PauseStrategyFunc) *TestScenario {
+func NewTestScenario(name string, test TestFunc, setup SetupFunc, teardown TeardownFunc, maxUsers int, testLength time.Duration, startStrategy StartStrategyFunc, pause PauseStrategyFunc) *TestScenario {
 	return &TestScenario{
+		name:          name,
 		test:          test,
 		setup:         setup,
 		teardown:      teardown,
@@ -35,7 +36,7 @@ func (ts *TestScenario) Run(ctx context.Context, resultsCollector ResultCollecto
 	var err error
 
 	logger := utils.LoggerFromContext(ctx)
-	logger = logger.WithField("test", ts.name)
+	logger = logger.WithField("name", ts.name)
 
 	if ts.setup != nil {
 		ctx, err = ts.setup(ctx)

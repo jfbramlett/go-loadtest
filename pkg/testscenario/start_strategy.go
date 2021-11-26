@@ -33,16 +33,29 @@ func RandomStartStrategy(ctx context.Context, testLength time.Duration, rampToUs
 
 	strategies := make([]StartProfile, 0)
 
+	startDelays := make(map[time.Duration]struct{})
 	var assignedUsers int
 	for assignedUsers = 0; assignedUsers < rampToUsers; assignedUsers += usersPerRamp {
-		strategies = append(strategies, StartProfile{Delay: utils.RandomSecondDuration(time.Duration(0), rampPeriod), Users: usersPerRamp})
+		delay := getStartDelay(rampPeriod, startDelays)
+		startDelays[delay] = empty
+		strategies = append(strategies, StartProfile{Delay: delay, Users: usersPerRamp})
 	}
 
 	if rampToUsers-assignedUsers > 0 {
-		strategies = append(strategies, StartProfile{Delay: utils.RandomSecondDuration(time.Duration(0), rampPeriod), Users: rampToUsers - assignedUsers})
+		delay := getStartDelay(rampPeriod, startDelays)
+		strategies = append(strategies, StartProfile{Delay: delay, Users: rampToUsers - assignedUsers})
 	}
 
 	return strategies
+}
+
+func getStartDelay(rampPeriod time.Duration, existingDelays map[time.Duration]struct{}) time.Duration {
+	for {
+		delay := utils.RandomMilliSecondDuration(time.Duration(0), rampPeriod)
+		if _, found := existingDelays[delay]; !found {
+			return delay
+		}
+	}
 }
 
 func SmoothStartStrategy(ctx context.Context, testLength time.Duration, rampToUsers int) []StartProfile {

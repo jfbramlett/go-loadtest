@@ -9,12 +9,6 @@ import (
 
 type PauseStrategyFunc func(ctx context.Context)
 
-func NoPauseStrategy() PauseStrategyFunc {
-	return func(ctx context.Context) {
-
-	}
-}
-
 func FixedPauseStrategy(dur time.Duration) PauseStrategyFunc {
 	return func(ctx context.Context) {
 		time.Sleep(dur)

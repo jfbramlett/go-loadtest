@@ -18,7 +18,7 @@ func main() {
 
 	scenarioPtr := flag.String("scenario", "dev-scenario.json", "the file containing our test config")
 	concurrentUsersPtr := flag.Int("concurrency", 50, "the number of concurrent requests (i.e. users")
-	testLengthPtr := flag.Int("length", 300, "the number of seconds to run the test")
+	testLengthPtr := flag.Int("length", 30, "the number of seconds to run the test")
 	intervalPtr := flag.Int("interval", 2, "number of seconds between calls")
 	minTimePtr := flag.Int("minTime", 1000, "milliseconds for our min threshold (for reporting)")
 	maxTimePtr := flag.Int("maxTime", 1500, "milliseconds for our min threshold (for reporting)")
@@ -48,7 +48,7 @@ func main() {
 	resultsCollector := testscenario.NewInMemoryRunCollector()
 	resultsCollector.Start()
 
-	scenario := testscenario.NewTestScenario(
+	scenario := testscenario.NewTestScenario("Sample Test",
 		testscenario.NewWeightedTestFunc(
 			testscenario.NewWeightedTest(testFunc("test 1"), 2),
 			testscenario.NewWeightedTest(testFunc("test 2"), 8),
